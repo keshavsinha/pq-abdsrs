@@ -1,0 +1,10 @@
+% Minimal offline shim for soul.sty, providing only the commands mdpi.cls needs.
+% Not a full reimplementation of the real 'soul' package.
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{soul}[2024/01/01 minimal offline shim]
+\providecommand{\st}[1]{#1}
+\providecommand{\so}[1]{#1}
+\providecommand{\ul}[1]{\underline{#1}}
+\providecommand{\hl}[1]{\colorbox{yellow}{#1}}
+\providecommand{\caps}[1]{\textsc{#1}}
+\endinput
