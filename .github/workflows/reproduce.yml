@@ -1,0 +1,53 @@
+name: reproduce
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  numbers:
+    name: regenerate numbers and check them against the paper
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: Regenerate every table and figure
+        run: PYTHONPATH=src python -m pqabdsrs --outdir out
+      - name: Check the code agrees with the numbers printed in the paper
+        run: PYTHONPATH=src python -m pytest -q
+      - uses: actions/upload-artifact@v4
+        with:
+          name: regenerated-tables-and-figures
+          path: out/
+
+  paper:
+    name: build the manuscript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install TeX Live
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended \
+            texlive-science texlive-pictures
+      - name: Build
+        run: |
+          cd paper
+          for i in 1 2 3; do pdflatex -interaction=nonstopmode template.tex >/dev/null || true; done
+      - name: Fail if any macro is undefined
+        run: |
+          if grep -q "Undefined control sequence" paper/template.log; then
+            echo "Undefined macros found:"
+            grep -A2 "Undefined control sequence" paper/template.log | head -40
+            exit 1
+          fi
+          echo "no undefined macros"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: manuscript-pdf
+          path: paper/template.pdf

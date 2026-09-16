@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+title: "PQ-ABDSRS reproduction code"
+message: "If you use this code, please cite the accompanying paper."
+type: software
+authors:
+  - family-names: Sinha
+    given-names: Keshav
+    orcid: "https://orcid.org/0000-0003-1053-3911"
+    affiliation: "School of Computer Science, UPES, Dehradun, India"
+  - family-names: Kumar
+    given-names: Sanoj
+    orcid: "https://orcid.org/0000-0002-0476-4783"
+    affiliation: "Data Science Cluster, School of Computer Science, UPES, Dehradun, India"
+  - family-names: Ali
+    given-names: Musrrat
+    orcid: "https://orcid.org/0000-0002-4837-1850"
+    affiliation: "King Faisal University, Al Ahsa, Saudi Arabia"
+  - family-names: Sait
+    given-names: Abdul Rahaman Wahab
+    orcid: "https://orcid.org/0000-0001-5445-7899"
+    affiliation: "King Faisal University, Al-Ahsa, Saudi Arabia"
+license: MIT
+repository-code: "https://github.com/<user>/pq-abdsrs"
+preferred-citation:
+  type: article
+  title: "Post-Quantum Attribute-Based Verifiable Data Storage and Retrieval for Cloud Computing Environments"
+  authors:
+    - family-names: Sinha
+      given-names: Keshav
+    - family-names: Kumar
+      given-names: Sanoj
+    - family-names: Ali
+      given-names: Musrrat
+    - family-names: Sait
+      given-names: Abdul Rahaman Wahab
+  year: 2026
