@@ -92,9 +92,7 @@
 % PDF. The definitions below repair this. Do not delete this block.
 %=================================================================
 \microtypesetup{expansion=false}
-\usepackage{algorithm}
-\usepackage{algpseudocode}
-\usepackage{amsmath,amssymb,mathtools}
+\usepackage{mathtools}
 
 % --- number sets and asymptotics ---
 \newcommand{\Z}{\mathbb{Z}}
@@ -207,14 +205,14 @@ pairing-bilinearity masking identity that ABDSRS uses for non-interactive verifi
 no lattice analogue, and we show that an additively homomorphic SIS commitment does not by
 itself authenticate an outsourced computation. We replace it with a SIS-based binding digest
 over the ciphertext components, bound into the data owner's signature, together with a
-random-oracle preimage check on the search predicate. We prove correctness with an explicit
-noise bound, and we prove IND-CPA confidentiality, EUF-CMA unforgeability, verifiability and
-keyword indistinguishability in the classical random oracle model, stating separately which
+random-oracle preimage check on the search predicate. We state the decryption-error condition the composition requires, and fix the modulus from
+it, and we prove IND-CPA confidentiality, EUF-CMA unforgeability, verifiability and keyword
+indistinguishability in the classical random oracle model, stating separately which
 guarantees are inherited from the cited building blocks. We derive a NIST Level-1 parameter set, in which the modulus is fixed by the correctness
 bound and the dimension by a primal-uSVP core-SVP estimate, and we report complete serialized
 object sizes. The resulting public parameters are more than seven orders of magnitude larger
-than ABDSRS's, and ciphertexts roughly 700 to 900 times larger, which we report as the
-principal practical obstacle rather than as a favourable comparison. A structured-lattice variant is
+than ABDSRS's, and ciphertexts roughly three thousand times larger, which we report as the
+principal practical obstacle rather than as a favorable comparison. A structured-lattice variant is
 discussed as future work and is not claimed as an instantiated scheme.}
 
 \keyword{post-quantum cryptography; attribute-based encryption; lattice-based cryptography;
@@ -297,9 +295,11 @@ security rests only on LWE and SIS. The contributions are as follows.
     predicate outcome. Both parts admit complete reductions
     (Theorems~\ref{thm:verif-transform} and~\ref{thm:verif-test}).
 
-    \item \textbf{Correctness with an explicit noise bound.} Theorem~\ref{thm:correctness}
-    derives the decryption-error bound of the composed scheme and the resulting condition on
-    the modulus, which is what fixes $q$ in the parameter selection of
+    \item \textbf{An explicit decryption-error condition.} Definition~\ref{def:babe} isolates the
+    decryption-error bound $B_{\mathrm{abe}}$ that the access-control building block must
+    satisfy, Equation~\eqref{eq:noise} instantiates it for the dimension model we assume, and
+    Theorem~\ref{thm:correctness} shows that the composition is correct whenever it holds.
+    The scheme itself adds no noise, so~\eqref{eq:noise} is what fixes $q$ in
     Section~\ref{subsec:params}.
 
     \item \textbf{Security proofs at the level actually established.} We prove IND-CPA
@@ -313,8 +313,8 @@ security rests only on LWE and SIS. The contributions are as follows.
     Theorem~\ref{thm:correctness} and the dimension from a primal-uSVP core-SVP estimate
     (Table~\ref{tab:coresvp}), and we report every serialized object in full
     (Tables~\ref{tab:concrete}--\ref{tab:breakdown}). The public parameters exceed ABDSRS's
-    by more than seven orders of magnitude and the complete ciphertext by a factor of
-    roughly $700$ to $900$. We report this as the principal obstacle to deployment.
+    by more than seven orders of magnitude and the complete ciphertext by a factor of roughly
+$2{,}800$ to $4{,}000$. We report this as the principal obstacle to deployment.
 \end{itemize}
 
 \subsection{Scope and what is not claimed}
@@ -384,9 +384,9 @@ subsection derives its security from pairing-based assumptions that Shor's algor
 \subsection{Lattice-based attribute-based encryption}
 
 Lattice-based ABE was initiated by Boyen~\cite{boyen2013attribute} and by Gorbunov,
-Vaikuntanathan, and Wee~\cite{gvw2013attribute}, who constructed key-policy ABE for arbitrary
-Boolean formulas from LWE using lattice trapdoors and the Agrawal--Boneh--Boyen lattice IBE
-framework~\cite{abb2010efficient}. Boneh et al.~\cite{bggh2014fkhe} gave the key-homomorphic
+Vaikuntanathan, and Wee~\cite{gvw2013attribute}, who constructed key-policy ABE for arbitrary Boolean formulas from LWE. Lattice trapdoors and
+the Agrawal--Boneh--Boyen lattice IBE framework~\cite{abb2010efficient} underlie this line of
+work more broadly. Boneh et al.~\cite{bggh2014fkhe} gave the key-homomorphic
 encoding that underlies most subsequent lattice ABE. On the ciphertext-policy side, Zhang,
 Zhang, and Ge~\cite{zhang2012ciphertext} constructed CP-ABE for AND-gate policies with
 wildcards, and Tsabary~\cite{tsabary2019fully} gave a fully secure CP-ABE for $t$-CNF
@@ -450,7 +450,8 @@ $^{a}$ Fine-grained access control: decryption succeeds exactly when the decrypt
 attribute set satisfies a policy chosen by the encryptor.
 $^{b}$ Data and data-owner authenticity: a verifier can confirm that the ciphertext was
 produced by a party holding a key for an attribute set satisfying the signing policy.
-$^{c}$ Data-owner anonymity in the sense of Definition~\ref{def:signerprivacy}.
+$^{c}$ Data-owner anonymity in the sense of Definition~\ref{def:signerprivacy} and
+Lemma~\ref{lem:signerprivacy}.
 $^{d}$ Online/offline: message-independent work can be precomputed.
 $^{e}$ Outsourced unsigncryption: the cloud performs policy reconstruction on the
 user's behalf.
@@ -514,7 +515,7 @@ $\mathbf{x}\in\Lambda$ the probability
 $\rho_{s,\mathbf{c}}(\mathbf{x})/\sum_{\mathbf{y}\in\Lambda}\rho_{s,\mathbf{c}}(\mathbf{y})$.
 We write $D_{\Lambda,s}$ for $\mathbf{c}=\mathbf{0}$ and $D_{\Z,s}$ for the one-dimensional
 case, whose standard deviation is $s/\sqrt{2\pi}$. For $s\ge\omega(\sqrt{\log m})$,
-$\Pr[\norm{\mathbf{x}}>s\sqrt{m}\,] \le \negl(m)$ for
+$\Pr[\norm{\mathbf{x}}>s\sqrt{m}\,] \le \negl(\lambda)$ for
 $\mathbf{x}\sim D_{\Z^{m},s}$~\cite{gentry2008trapdoors}.
 \end{Definition}
 
@@ -523,7 +524,7 @@ $\mathbf{x}\sim D_{\Z^{m},s}$~\cite{gentry2008trapdoors}.
 
 \begin{Definition}[Decisional Learning with Errors, $\LWE_{n,q,\chi,m}$]
 \label{def:lwe}
-Let $n,q\in\N^{+}$ with $q = q(n)$ prime, let $m = \poly(n)$, and let $\chi = D_{\Z,\alpha q}$
+Let $n,q\in\N^{+}$ with $q = q(n) \ge 2$, let $m = \poly(n)$, and let $\chi = D_{\Z,\alpha q}$
 for $\alpha\in(0,1)$ with $\alpha q \ge 2\sqrt{n}$. Sample
 $\mathbf{s}\xleftarrow{\$}\Zq^{n}$ once, and for $i\in[m]$ sample
 $\mathbf{a}_i\xleftarrow{\$}\Zq^{n}$, $e_i\xleftarrow{\$}\chi$ and
@@ -540,9 +541,11 @@ For $\alpha q \ge 2\sqrt{n}$, solving $\LWE_{n,q,\chi,m}$ is at least as hard as
 quantumly approximating $\SVP$ and $\SIVP$ on $n$-dimensional lattices to within
 $\widetilde{O}(n/\alpha)$ factors~\cite{regev2009lattices}; the reduction
 of~\cite{regev2009lattices} is quantum, and a classical reduction for exponential moduli is
-given in~\cite{peikert2009publickey}. Throughout this paper $m$ denotes the number of LWE
-samples and coincides with the trapdoor-matrix width fixed in Definition~\ref{def:trapgen};
-where the two must differ we write $m_{\mathrm{s}}$ for the sample count.
+given in~\cite{peikert2009publickey}. Throughout this paper $m$ denotes the number of LWE samples and coincides with the
+trapdoor-matrix width fixed in Definition~\ref{def:trapgen}; where the two must differ we
+write $m_{\mathrm{s}}$ for the sample count. We do not require $q$ prime: the parameter set
+of Section~\ref{subsec:params} uses a power of two, which the trapdoor machinery of
+Definition~\ref{def:trapgen} supports.
 \end{Definition}
 
 \begin{Definition}[Short Integer Solution, $\SIS_{n,q,m,\beta}$]
@@ -561,7 +564,7 @@ Table~\ref{tab:coresvp}.
 
 \subsection{Lattice trapdoors and basis delegation}
 
-\begin{Definition}[Trapdoor generation~\cite{gentry2008trapdoors,alwen2011generating}]
+\begin{Definition}[Trapdoor generation~\cite{gentry2008trapdoors,alwen2011generating,mp2012trapdoors}]
 \label{def:trapgen}
 There is a PPT algorithm $\TrapGen(1^{n},1^{m},q)$ that, for $q\ge 2$ and
 $m \ge (1+\delta)\,n\log_2 q$ for any fixed $\delta>0$, outputs a pair
@@ -569,7 +572,9 @@ $(\mathbf{A},\mathbf{T}_{\mathbf{A}})$ with $\mathbf{A}\in\Zq^{n\times m}$ stati
 close to uniform over $\Zq^{n\times m}$, and $\mathbf{T}_{\mathbf{A}}\in\Z^{m\times m}$ a
 basis of $\Lambda_q^{\perp}(\mathbf{A})$ satisfying
 $\norm{\widetilde{\mathbf{T}}_{\mathbf{A}}} = O(\sqrt{n\log q})$. We take $\delta = 1$, so
-$m := 2n\lceil\log_2 q\rceil$.
+$m := 2n\lceil\log_2 q\rceil$. The construction of Micciancio and
+Peikert~\cite{mp2012trapdoors} realizes this for an arbitrary modulus, including the power of
+two used in Section~\ref{subsec:params}, and is the variant we assume.
 \end{Definition}
 
 \begin{Definition}[Preimage sampling~\cite{gentry2008trapdoors}]
@@ -579,12 +584,12 @@ that takes $\mathbf{A}\in\Zq^{n\times w}$, a basis $\mathbf{T}_{\mathbf{A}}$ of
 $\Lambda_q^{\perp}(\mathbf{A})$, a target $\mathbf{u}\in\Zq^{n}$ and a Gaussian parameter
 $\sigma \ge \norm{\widetilde{\mathbf{T}}_{\mathbf{A}}}\cdot\omega(\sqrt{\log w})$, and
 outputs $\mathbf{e}\in\Z^{w}$ with $\mathbf{A}\mathbf{e}=\mathbf{u}\bmod q$. The output
-distribution is within statistical distance $\negl(n)$ of
+distribution is within statistical distance $\negl(\lambda)$ of
 $D_{\Lambda_q^{\mathbf{u}}(\mathbf{A}),\sigma}$, and
-$\norm{\mathbf{e}}\le\sigma\sqrt{w}$ except with probability $\negl(n)$.
+$\norm{\mathbf{e}}\le\sigma\sqrt{w}$ except with probability $\negl(\lambda)$.
 \end{Definition}
 
-\begin{Definition}[Basis delegation~\cite{chkp2010bonsai,alwen2011generating}]
+\begin{Definition}[Basis delegation~\cite{chkp2010bonsai}]
 \label{def:extbasis}
 There is a deterministic polynomial-time algorithm
 $\ExtBasis(\mathbf{T}_{\mathbf{A}},\mathbf{F})$ that, given a basis $\mathbf{T}_{\mathbf{A}}$
@@ -615,7 +620,7 @@ public matrix. For $\mathbf{y}\in\Zq^{2n}$ define the compression function
 $f_{\mathbf{A}_h} : \Zq^{2n}\to\Zq^{n}$, $f_{\mathbf{A}_h}(\mathbf{y}) := \mathbf{A}_h\cdot\bits(\mathbf{y}) \bmod q$,
 where $\bits(\mathbf{y})\in\bt^{2nh}$. For $\mathbf{c}\in\Zq^{w}$ with $w$ a multiple of $n$,
 $\hSIS(\mathbf{c})\in\Zq^{n}$ is the Merkle--Damg{\aa}rd iteration of $f_{\mathbf{A}_h}$ over
-the $w/n$ blocks of $\mathbf{c}$ with initialisation vector $\mathbf{0}$.
+the $w/n$ blocks of $\mathbf{c}$ with initialization vector $\mathbf{0}$.
 \end{Definition}
 
 \begin{Lemma}[Collision resistance]
@@ -638,8 +643,8 @@ Let $\mathbf{B} = [\mathbf{B}_1\Vert\mathbf{B}_2]\in\Zq^{n\times(k+m)}$ with
 $\mathbf{B}_1\in\Zq^{n\times k}$, $\mathbf{B}_2\in\Zq^{n\times m}$, and define
 $\mathsf{Com}(\mathbf{x};\mathbf{r}) := \mathbf{B}_1\mathbf{x}+\mathbf{B}_2\mathbf{r}\bmod q$
 for $\mathbf{x}\in\Z^{k}$, $\mathbf{r}\in\bt^{m}$. This function is additively homomorphic
-and, restricted to openings with $\norm{(\mathbf{x},\mathbf{r})}\le\beta$, is binding under
-$\SIS_{n,q,k+m,2\beta}$~\cite{kawachi2008commitment,baum2018commitments}. Two properties
+and, restricted to openings with $\norm{(\mathbf{x},\mathbf{r})}\le\beta$, is binding under $\SIS_{n,q,k+m,2\beta}$~\cite{kawachi2008commitment}; the analogue over
+structured lattices is~\cite{baum2018commitments}. Two properties
 that an outsourced-computation proof requires are nevertheless missing. First, binding holds
 only for \emph{short} committed values; the ciphertext components of
 Section~\ref{sec:construction} are close to uniform over $\Zq^{2m}$ and are not short, so no
@@ -678,16 +683,18 @@ if there exists $\mathbf{a}\in\Zq^{\ell}$ with $a_i = 0$ for every $i$ such that
 $\rho(i)\notin A$, and $\mathbf{a}^{\top}\mathbf{M} = \mathbf{1}^{\top}$. Note the direction
 of the condition: the coefficients vanish on rows whose labels are \emph{not} in $A$.
 
-PQ-ABDSRS is defined over the DNF class~\eqref{eq:dnf} rather than over general MSPs.
-The reason is that no lattice CP-ABE in the literature supports arbitrary MSPs with a
-ciphertext independent of the number of satisfying sets:~\cite{zhang2012ciphertext} supports
-AND-gate policies with wildcards and~\cite{tsabary2019fully} supports $t$-CNF. DNF is the
-largest class for which the ABE interface of Section~\ref{subsec:cpabe} can be met by a
-cited construction, at the price of one ciphertext component per clause. For policies whose
-DNF representation is exponentially larger than their formula representation, this cost is
-prohibitive, and we state that as a limitation rather than claiming MSP support. Every
-reconstruction coefficient in~\eqref{eq:dnf} is $0$ or $1$, which is what keeps the norm
-bounds of Section~\ref{sec:correctness} tight.
+PQ-ABDSRS is defined over the DNF class~\eqref{eq:dnf} rather than over general MSPs. The
+reason is that no lattice CP-ABE in the literature supports arbitrary MSPs with a ciphertext
+independent of the number of satisfying sets:~\cite{zhang2012ciphertext} supports AND-gate
+policies with wildcards and~\cite{tsabary2019fully} supports $t$-CNF. These two classes are
+incomparable, and neither contains the other; DNF is the class we adopt, because one
+AND-clause is exactly what a single invocation of the interface of
+Section~\ref{subsec:cpabe} encrypts to, at the price of one ciphertext component per clause.
+For policies whose DNF representation is exponentially larger than their formula
+representation, this cost is prohibitive, and we state that as a limitation rather than
+claiming MSP support. Satisfaction of~\eqref{eq:dnf} is witnessed by a single clause index
+rather than by a linear combination of shares, which is what allows $\Transform$ in
+Section~\ref{subsec:testtransform} to be a selection.
 
 \subsection{Authenticated symmetric encryption}
 \label{subsec:aead}
@@ -721,8 +728,10 @@ and payload space $\bt^{\kappa}$ consists of:
 \begin{itemize}[leftmargin=*,itemsep=1pt]
 \item $\CPABE.\Setup(1^{\lambda},U) \to (\mathsf{pp},\mathsf{msk})$;
 \item $\CPABE.\KeyGen(\mathsf{msk},A) \to \mathsf{sk}_A$ for $A\subseteq U$;
-\item $\CPABE.\Enc(\mathsf{pp},S,K) \to \mathsf{ct}_S$ for a clause $S\subseteq U$ and
-      $K\in\bt^{\kappa}$;
+\item $\CPABE.\Enc(\mathsf{pp},S,K;\,r) \to \mathsf{ct}_S$ for a clause $S\subseteq U$,
+      $K\in\bt^{\kappa}$ and randomness $r$ drawn from a space
+      $\mathcal{R}_{\mathrm{cp}}$ determined by $\mathsf{pp}$; we omit $r$ where the
+      draw is implicit;
 \item $\CPABE.\Dec(\mathsf{sk}_A,\mathsf{ct}_S) \to K$ or $\bot$.
 \end{itemize}
 \emph{Correctness.} For all $A\supseteq S$,
@@ -734,26 +743,57 @@ $S^{\star}$ before seeing $\mathsf{pp}$ and may query $\CPABE.\KeyGen$ on any $A
 $S^{\star}\not\subseteq A$,
 $\big|\Pr[\Adv \to b] - \tfrac12\big| \le \negl(\lambda)$ in the game where $\Adv$ submits
 $K_0,K_1$ and receives $\CPABE.\Enc(\mathsf{pp},S^{\star},K_b)$.
-\emph{Linear reduction.} There is a public deterministic map
-$\CPABE.\mathsf{Reduce}$ that, given $\mathsf{ct}_{S_1},\dots,\mathsf{ct}_{S_\ell}$ and an
+\emph{Public clause selection.} There is a public deterministic map
+$\CPABE.\mathsf{Select}$ that, given $\mathsf{ct}_{S_1},\dots,\mathsf{ct}_{S_{\ell}}$ and an
 index $j$, returns $\mathsf{ct}_{S_j}$, so that
-$\CPABE.\Dec(\mathsf{sk}_A,\CPABE.\mathsf{Reduce}(\{\mathsf{ct}_{S_j}\},j)) = K$ whenever
-$S_j\subseteq A$. This is the property the cloud exercises in
-Algorithm~\ref{alg:transform}, and it is the reason $\Transform$ can be delegated without
-revealing $\mathsf{sk}_A$.
+$\CPABE.\Dec(\mathsf{sk}_A,\CPABE.\mathsf{Select}(\{\mathsf{ct}_{S_j}\},j)) = K$ whenever
+$S_j\subseteq A$. Every scheme meeting the syntax above satisfies this trivially, since the
+clause ciphertexts are separate objects. It is stated because it is the property the cloud
+exercises in Algorithm~\ref{alg:transform}, and it is the reason $\Transform$ can be delegated
+without revealing $\mathsf{sk}_A$.
 \end{Definition}
 
-\emph{Instantiation.} We instantiate $\CPABE$ with the AND-gate lattice CP-ABE of Zhang,
-Zhang, and Ge~\cite{zhang2012ciphertext}, whose ciphertext for a clause $S$ consists of one
-vector in $\Zq^{2m}$ together with $\kappa$ elements of $\Zq$ carrying the encapsulated key,
-and whose key for an attribute set $A$ is a single short vector in $\Z^{2m}$ obtained by
-$\SamplePre$ over the delegated matrix
-$\mathbf{F}_A := [\mathbf{A}_0 \Vert \sum_{x\in A}\mathbf{A}_x]$. Its selective IND-CPA
-security holds under $\LWE_{n,q,\chi,m}$. The policy class of a single invocation is one
-AND-clause; a DNF policy~\eqref{eq:dnf} is handled by invoking $\CPABE.\Enc$ once per clause
-under a common encapsulated key. Tsabary's $t$-CNF construction~\cite{tsabary2019fully} meets
-the same interface and gives full rather than selective security at a larger ciphertext; we
-use~\cite{zhang2012ciphertext} in the size accounting and note the alternative.
+\emph{Instantiation.} $\CPABE$ is instantiated with the AND-gate lattice CP-ABE of Zhang,
+Zhang, and Ge~\cite{zhang2012ciphertext}, whose policy class is a single AND-clause over $U$
+with wildcards and whose selective IND-CPA security rests on $\LWE_{n,q,\chi,m}$ at the
+parameters stated there. A DNF policy~\eqref{eq:dnf} is handled by invoking $\CPABE.\Enc$ once
+per clause on the same payload $K$. Tsabary's $t$-CNF construction~\cite{tsabary2019fully}
+also realises Definition~\ref{def:cpabe} and gives full rather than selective security, at a
+larger ciphertext; whether it admits the clause-selection map of
+Definition~\ref{def:cpabe} in the form used by Algorithm~\ref{alg:transform} has not been
+checked here, so we do not rely on it.
+
+\begin{Remark}[Dimension model, and what is not reproduced]
+\label{rem:dimmodel}
+We use $\CPABE$ strictly through Definition~\ref{def:cpabe}. We do not reproduce the key
+derivation of~\cite{zhang2012ciphertext}, and no algorithm in Section~\ref{sec:construction}
+opens the primitive. An earlier version of this manuscript did open it, writing a key as a
+single $\SamplePre$ preimage over $\mathbf{F}_A := [\mathbf{A}_0 \Vert \sum_{x\in A}\mathbf{A}_x]$
+and then applying that key to a ciphertext formed under $\mathbf{F}_{S}$ for a clause
+$S\subsetneq A$. Those are different matrices, so the two do not compose, and the step does
+not follow. The abstraction removes the error rather than papering over it.
+
+For the size and cost figures of Section~\ref{sec:performance} we nevertheless need
+dimensions, and we state the model we assume rather than attributing it to a published
+serialization:
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item public parameters: $|U|+1$ uniform matrices in $\Zq^{n\times m}$ and a target matrix
+      $\mathbf{U}\in\Zq^{n\times\kappa}$;
+\item ciphertext for one clause: one vector in $\Zq^{2m}$ together with $\kappa$ elements of
+      $\Zq$ carrying the encapsulated payload;
+\item key for an attribute set: a discrete Gaussian \emph{matrix} in $\Z^{2m\times\kappa}$.
+\end{itemize}
+The last item is a matrix, not a vector, and this is not a presentational choice. Encapsulating
+$\kappa$ bits against a single target $\mathbf{u}\in\Zq^{n}$ masks every payload coordinate with
+the same inner product $\inner{\mathbf{u}}{\mathbf{s}}$, so for a ciphertext
+$c_{u,i} = \inner{\mathbf{u}}{\mathbf{s}} + e_{u,i} + \lfloor q/2\rfloor K_i$ the differences
+$c_{u,i}-c_{u,j} = e_{u,i}-e_{u,j}+\lfloor q/2\rfloor(K_i\oplus K_j)$ recover $K_i\oplus K_j$
+by rounding whenever $|e| \ll q/4$, which holds at every parameter set in
+Section~\ref{subsec:params}. All but one bit of the payload would leak from the ciphertext
+alone. Against $\kappa$ independent targets $\mathbf{U}\in\Zq^{n\times\kappa}$ the leak
+disappears and the key acquires $\kappa$ columns, which is what
+Table~\ref{tab:concrete} reports.
+\end{Remark}
 
 \subsection{Lattice key-policy attribute-based encryption}
 \label{subsec:kpabe}
@@ -763,9 +803,9 @@ use~\cite{zhang2012ciphertext} in the size accounting and note the alternative.
 $\KPABE = (\KPABE.\Setup,\KPABE.\KeyGen,\KPABE.\Enc,\KPABE.\Dec)$ over a keyword-name
 universe $U^{\circ}$ and payload space $\bt^{\kappa}$ has
 $\KPABE.\KeyGen(\mathsf{msk},\mathcal{P}_t)\to\mathsf{sk}_{\mathcal{P}_t}$ for a monotone
-Boolean formula $\mathcal{P}_t$ over $U^{\circ}$, and
-$\KPABE.\Enc(\mathsf{pp},W^{\circ},\tau)\to\mathsf{ct}_{W^{\circ}}$ for a set
-$W^{\circ}\subseteq U^{\circ}$. Correctness requires
+Boolean formula $\mathcal{P}_t$ over $U^{\circ}$, and $\KPABE.\Enc(\mathsf{pp},W^{\circ},\tau;\,r)\to\mathsf{ct}_{W^{\circ}}$ for a set
+$W^{\circ}\subseteq U^{\circ}$ and randomness $r$ drawn from a space
+$\mathcal{R}_{\mathrm{kp}}$ determined by $\mathsf{pp}$. Correctness requires
 $\KPABE.\Dec(\mathsf{sk}_{\mathcal{P}_t},\mathsf{ct}_{W^{\circ}}) = \tau$ whenever
 $\mathcal{P}_t(W^{\circ}) = \true$. Security is selective IND-CPA: an adversary committing to
 $W^{\circ\star}$ in advance and querying keys only for formulas with
@@ -773,26 +813,44 @@ $\mathcal{P}_t(W^{\circ\star})=\false$ has advantage $\negl(\lambda)$.
 \end{Definition}
 
 \emph{Instantiation.} $\KPABE$ is instantiated with the LWE key-policy ABE for Boolean
-formulas of Gorbunov, Vaikuntanathan, and Wee~\cite{gvw2013attribute}, in the compact
-key-homomorphic encoding of Boneh et al.~\cite{bggh2014fkhe}. A ciphertext for a keyword-name
-set of size $\varsigma$ consists of $\varsigma+1$ vectors in $\Zq^{m}$ plus $\kappa$ elements
-of $\Zq$; a key for a formula with $\varsigma$ leaves consists of $\varsigma$ short vectors in
-$\Z^{m}$.
+formulas of Gorbunov, Vaikuntanathan, and Wee~\cite{gvw2013attribute}, in the key-homomorphic
+encoding of Boneh et al.~\cite{bggh2014fkhe}. Two properties of that encoding fix the sizes we
+report, and both cut against the scheme.
+
+First, encryption is to an attribute \emph{vector} over the whole universe, so a ciphertext
+carries $|U^{\circ}|+1$ components in $\Zq^{m}$ plus $\kappa$ elements of $\Zq$, whatever the
+number $\varsigma$ of keywords actually set. It does not scale with $\varsigma$. The
+short-ciphertext variant of~\cite{bggh2014fkhe}, in which an encryption to $\mathbf{x}$ costs
+$|\mathbf{x}|$ plus $\poly(\lambda,d)$ bits, is built from multilinear maps rather than LWE
+and is therefore not available to a scheme whose stated goal is an LWE-only construction.
+Section~\ref{subsec:sizes} shows that this single fact makes the keyword layer, not the
+access-control layer, the dominant ciphertext component at every parameter point.
+
+Second, the construction of~\cite{bggh2014fkhe} has \emph{short secret keys}: key size depends
+only on the depth $d$ of the policy circuit, not on its size. A keyword-policy trapdoor is
+therefore constant in the number of leaves, and we model it as one discrete Gaussian vector in
+$\Z^{2m}$. An earlier version of this manuscript modeled the ciphertext as
+$\varsigma+1$ components and the key as $\varsigma$ vectors; both were wrong, in opposite
+directions.
 
 \subsection{Lattice attribute-based signature}
 \label{subsec:abs}
 
 \begin{Definition}[ABS interface]
 \label{def:abs}
-$\ABS = (\ABS.\Setup,\ABS.\KeyGen,\ABS.\Sign,\ABS.\Verify)$ has
-$\ABS.\KeyGen(\mathsf{msk},A_s)\to\mathsf{sk}_{A_s}$ and
-$\ABS.\Sign(\mathsf{sk}_{A_s},\mathcal{P}_s,\mu)\to\varsigma$, defined only when
+Let
+\[
+\ABS \;=\; (\ABS.\Setup,\ \ABS.\KeyGen,\ \ABS.\Sign,\ \ABS.\Verify).
+\]
+It has $\ABS.\KeyGen(\mathsf{msk},A_s)\to\mathsf{sk}_{A_s}$ and
+$\ABS.\Sign(\mathsf{sk}_{A_s},\mathcal{P}_s,\mathit{M})\to\mu$, defined only when
 $\mathcal{P}_s(A_s)=\true$, with
-$\ABS.\Verify(\mathsf{pp},\mathcal{P}_s,\mu,\varsigma)\in\{\mathsf{accept},\mathsf{reject}\}$.
+$\ABS.\Verify(\mathsf{pp},\mathcal{P}_s,\mathit{M},\mu)$ returning $\mathsf{accept}$ or
+$\mathsf{reject}$. The symbol $\varsigma$ is reserved throughout for the keyword-set size.
 Two properties are required.
 \emph{Unforgeability.} No PPT adversary with adaptive access to $\ABS.\KeyGen$ and
-$\ABS.\Sign$ produces $(\mathcal{P}_s^{\star},\mu^{\star},\varsigma^{\star})$ that verifies,
-where $\mu^{\star}$ was never signed under $\mathcal{P}_s^{\star}$ and no queried $A_s$
+$\ABS.\Sign$ produces $(\mathcal{P}_s^{\star},\mathit{M}^{\star},\mu^{\star})$ that verifies, where
+$\mathit{M}^{\star}$ was never signed under $\mathcal{P}_s^{\star}$ and no queried $A_s$
 satisfies $\mathcal{P}_s^{\star}$, except with probability $\negl(\lambda)$.
 \emph{Signer privacy.} For any $\mathcal{P}_s$ and any $A_s^{0},A_s^{1}$ with
 $\mathcal{P}_s(A_s^{0}) = \mathcal{P}_s(A_s^{1}) = \true$, the signature distributions under
@@ -802,15 +860,18 @@ even to a party holding $\mathsf{msk}$.
 
 \emph{Instantiation.} $\ABS$ is instantiated with the lattice attribute-based signature of
 El Kaafarani and Katsumata~\cite{ek2018abs}, which is unforgeable under SIS and provides
-signer privacy in the random oracle model; Tsabary's construction~\cite{tsabary2017abs} is an
-alternative in the standard model. We record explicitly that a GPV hash-and-sign
+signer privacy in the random oracle model; Tsabary~\cite{tsabary2017abs} gives a further lattice attribute-based signature by way of an
+equivalence with homomorphic signatures; we have not re-derived its model or parameters and
+do not rely on it. We record explicitly that a GPV hash-and-sign
 signature~\cite{gentry2008trapdoors} does \emph{not} meet Definition~\ref{def:abs}: it is
 EUF-CMA secure, but it authenticates a key for a specific attribute set and provides no
 signer privacy across attribute sets. The earlier version of this manuscript used a bare
 GPV signature and nevertheless claimed data-owner anonymity; that claim does not follow, and
-the ABS building block is what replaces it. For a signing policy consisting of a single
-AND-clause, and where anonymity is not required, the GPV signature can be substituted, and
-Section~\ref{sec:performance} reports both sizes.
+the ABS building block is what replaces it. For a signing policy consisting of a single AND-clause, and where anonymity is not required,
+the GPV signature can be substituted. Section~\ref{sec:performance} costs the signature at the
+GPV size, which is a lower bound on the $\ABS$ signature of~\cite{ek2018abs}; we do not report
+the $\ABS$ figure, because it depends on parameters of that construction that we have not
+re-derived, and the totals are labelled as lower bounds accordingly.
 
 \subsection{Guarantees inherited from the building blocks}
 
@@ -825,13 +886,13 @@ in this paper conditional on the corresponding left-hand property.}
 Primitive & Assumed property & Consumed by \\
 \midrule
 $\CPABE$~\cite{zhang2012ciphertext} & selective IND-CPA under $\LWE_{n,q,\chi,m}$ & Theorem~\ref{thm:confidentiality} \\
-$\CPABE$~\cite{zhang2012ciphertext} & correctness with noise bound $B_{\mathrm{dec}}$ & Theorem~\ref{thm:correctness} \\
-$\CPABE$~\cite{zhang2012ciphertext} & public linear reduction & Algorithm~\ref{alg:transform}, Theorem~\ref{thm:verif-transform} \\
+$\CPABE$~\cite{zhang2012ciphertext} & correctness with error bound $B_{\mathrm{abe}}$ & Theorem~\ref{thm:correctness} \\
+$\CPABE$~\cite{zhang2012ciphertext} & public clause selection & Algorithm~\ref{alg:transform}, Theorem~\ref{thm:verif-transform} \\
 $\KPABE$~\cite{gvw2013attribute,bggh2014fkhe} & selective IND-CPA under $\LWE_{n,q,\chi,m}$ & Theorem~\ref{thm:cka} \\
 $\ABS$~\cite{ek2018abs} & unforgeability under $\SIS_{n,q,2m,\beta_s}$ & Theorem~\ref{thm:unforgeability} \\
 $\ABS$~\cite{ek2018abs} & signer privacy & Lemma~\ref{lem:signerprivacy} \\
 $\hSIS$ (Def.~\ref{def:digest}) & collision resistance under $\SIS_{n,q,2nh,\beta_h}$ & Theorem~\ref{thm:verif-transform} \\
-$H_5$ & one-wayness (random oracle) & Theorem~\ref{thm:verif-test} \\
+$H_4$ & one-wayness (random oracle) & Theorem~\ref{thm:verif-test} \\
 $\AEAD$~\cite{nist80038d} & IND-CPA and INT-CTXT & Theorem~\ref{thm:confidentiality} \\
 \bottomrule
 \end{tabularx}
@@ -868,19 +929,22 @@ $\DO$, $\DU$, $\CS$ & data owner, data user, cloud server \\
 $\PP$, $\MK$ & system public parameters, master secret key \\
 $U$, $U^{\circ}$ & attribute universe, keyword-name universe \\
 $A_s$, $A_d$ & signing attribute set, decryption attribute set \\
-$\SK_{A_s}$, $\DK_{A_d}$ & signing key, decryption key \\
+$\SK_{A_s}$, $\DK_{A_d}$ & signing key ($\ABS$), decryption key ($\CPABE$) \\
 $\mathcal{P}_e,\mathcal{P}_s,\mathcal{P}_t$ & encryption, signing, keyword policy \\
 $S_1,\dots,S_{\ell_e}$ & DNF clauses of $\mathcal{P}_e$, per~\eqref{eq:dnf} \\
 $W$, $W^{\circ}$ & keyword value set, keyword generic-name set, $|W|=|W^{\circ}|=\varsigma$ \\
+$\mathsf{ct}_j$, $\mathsf{ct}_W$ & $\CPABE$ ciphertext of clause $S_j$, $\KPABE$ ciphertext of $W^{\circ}$ \\
+$\mathbf{d}_j$, $\mu_{\mathrm{sig}}$ & binding digest of $\mathsf{ct}_j$, $\ABS$ signature \\
 $\CT$, $\CT_{\mathrm{out}}$ & stored ciphertext, transformed ciphertext \\
 $\DRR$ & data retrieval request \\
 $\TD_{\mathcal{P}_t}$ & keyword-policy trapdoor \\
 $K$, $\tau$ & encapsulated payload key, search tag preimage, both in $\bt^{\kappa}$ \\
-$\mathbf{A}_0,\mathbf{T}_{\mathbf{A}_0}$ & master public matrix and its trapdoor \\
-$\mathbf{A}_x$ & public matrix of attribute $x\in U$ \\
 $\mathbf{A}_h$ & digest matrix of Definition~\ref{def:digest} \\
 $\hSIS(\cdot)$ & SIS-based binding digest \\
-$n,q,m,\sigma,\alpha,\beta$ & lattice dimension, modulus, matrix width, Gaussian parameter, error rate, SIS norm bound \\
+$\CPABE,\KPABE,\ABS$ & building blocks of Definitions~\ref{def:cpabe},~\ref{def:kpabe},~\ref{def:abs} \\
+$n,q,m,\sigma,\alpha$ & lattice dimension, modulus, matrix width, Gaussian parameter, error rate \\
+$\beta_s$, $\beta_h$ & SIS norm bounds of the signature and the digest (Table~\ref{tab:coresvp}) \\
+$B_{\mathrm{abe}}$ & $\CPABE$ decryption-error bound (Definition~\ref{def:babe}) \\
 $h$ & $\lceil\log_2 q\rceil$ \\
 \bottomrule
 \end{tabularx}
@@ -888,10 +952,11 @@ $h$ & $\lceil\log_2 q\rceil$ \\
 
 \subsection{Entity roles}
 
-$\KGC$ generates $\PP$ and $\MK$ by lattice trapdoor generation
-(Definition~\ref{def:trapgen}) and issues signing keys to $\DO$s and decryption keys to
-$\DU$s by preimage sampling over delegated bases
-(Definitions~\ref{def:samplepre}--\ref{def:extbasis}).
+$\KGC$ runs the setup of the three building blocks (Section~\ref{sec:blocks}) and issues
+signing keys to $\DO$s and decryption keys to $\DU$s through $\ABS.\KeyGen$ and
+$\CPABE.\KeyGen$; under the dimension model of Remark~\ref{rem:dimmodel} these rest on lattice
+trapdoor generation and preimage sampling over delegated bases
+(Definitions~\ref{def:trapgen}--\ref{def:extbasis}).
 $\DO$ signcrypts data under a signing policy $\mathcal{P}_s$, an encryption policy
 $\mathcal{P}_e$ and a keyword set $W$, and uploads the result to $\CS$.
 $\CS$ stores signcrypted data and, on receiving a $\DRR$, executes $\Test$ and $\Transform$,
@@ -902,7 +967,7 @@ $\DU$ obtains a trapdoor from $\TGC$, sends a $\DRR$ to $\CS$, and runs $\USV$ o
 \subsection{Threat model}
 \label{subsec:threat}
 
-$\KGC$ and $\TGC$ are fully trusted. The cloud is modelled as \emph{malicious} with the
+$\KGC$ and $\TGC$ are fully trusted. The cloud is modeled as \emph{malicious} with the
 following permitted deviations, replacing the contradictory
 ``honest-but-potentially-malicious'' formulation of the earlier version. $\CS$ stores what it
 is given, but it may (i) attempt to learn plaintexts, keyword values or attribute sets from
@@ -920,7 +985,7 @@ collude beyond their combined access rights, or attempt to learn keyword values.
 attempt to upload ciphertexts signed under policies they do not satisfy. In addition,
 adversaries are allowed to be QPT with respect to the hardness assumptions of
 Section~\ref{subsec:hardproblems}, but only classical access to the random oracles is
-modelled (Section~\ref{subsec:scope}).
+modeled (Section~\ref{subsec:scope}).
 
 %=================================================================
 \section{Construction of PQ-ABDSRS}
@@ -940,43 +1005,40 @@ below states the type of each input and output.
 \Require security parameter $1^{\lambda}$, attribute universe $U$, keyword-name universe $U^{\circ}$
 \Ensure public parameters $\PP$, master secret key $\MK$
 \State Fix $n,q,\alpha,\sigma,\kappa$ per Section~\ref{subsec:params}; set $h := \lceil\log_2 q\rceil$, $m := 2nh$, $\chi := D_{\Z,\alpha q}$
-\State $(\mathbf{A}_0, \mathbf{T}_{\mathbf{A}_0}) \leftarrow \TrapGen(1^{n},1^{m},q)$ \Comment{$\mathbf{A}_0\in\Zq^{n\times m}$, $\mathbf{T}_{\mathbf{A}_0}\in\Z^{m\times m}$}
-\For{each $x \in U$}
-    \State $\mathbf{A}_x \xleftarrow{\$} \Zq^{n \times m}$
-\EndFor
-\State $\mathbf{u} \xleftarrow{\$} \Zq^{n}$ \Comment{encapsulation target}
+\State $(\mathsf{pp}_{\mathrm{cp}},\mathsf{msk}_{\mathrm{cp}}) \leftarrow \CPABE.\Setup(1^{\lambda},U)$ \Comment{Def.~\ref{def:cpabe}; dimensions per Rem.~\ref{rem:dimmodel}}
+\State $(\mathsf{pp}_{\mathrm{kp}},\mathsf{msk}_{\mathrm{kp}}) \leftarrow \KPABE.\Setup(1^{\lambda},U^{\circ})$ \Comment{Def.~\ref{def:kpabe}}
+\State $(\mathsf{pp}_{\mathrm{abs}},\mathsf{msk}_{\mathrm{abs}}) \leftarrow \ABS.\Setup(1^{\lambda},U)$ \Comment{Def.~\ref{def:abs}}
 \State $\mathbf{A}_h \xleftarrow{\$} \Zq^{n \times 2nh}$ \Comment{digest matrix, Def.~\ref{def:digest}}
-\State $(\mathsf{pp}_{\mathrm{kp}},\mathsf{msk}_{\mathrm{kp}}) \leftarrow \KPABE.\Setup(1^{\lambda},U^{\circ})$
-\State $(\mathsf{pp}_{\mathrm{abs}},\mathsf{msk}_{\mathrm{abs}}) \leftarrow \ABS.\Setup(1^{\lambda},U)$
-\State Select hash functions, modelled as independent random oracles:
-\Statex \quad $H_1 : \bt^{*} \to \Zq^{n\times m}$ \Comment{public-matrix derivation from seeds}
-\Statex \quad $H_2 : \bt^{*} \to \Zq^{n}$ \Comment{keyword-policy target}
-\Statex \quad $H_3 : \bt^{\kappa} \to \bt^{\kappa}$ \Comment{payload key derivation}
-\Statex \quad $H_4 : \bt^{*} \to \Zq^{n}$ \Comment{message-to-target for $\ABS$}
-\Statex \quad $H_5 : \bt^{\kappa} \to \bt^{\kappa}$ \Comment{search-tag function}
-\State $\PP := \big(n,q,m,h,\sigma,\alpha,\kappa,\ \mathbf{A}_0,\{\mathbf{A}_x\}_{x\in U},\mathbf{u},\mathbf{A}_h,\ \mathsf{pp}_{\mathrm{kp}},\mathsf{pp}_{\mathrm{abs}},\ H_1,\dots,H_5\big)$
-\State $\MK := \big(\mathbf{T}_{\mathbf{A}_0},\ \mathsf{msk}_{\mathrm{kp}},\ \mathsf{msk}_{\mathrm{abs}}\big)$
+\State Select hash functions, modeled as independent random oracles:
+\Statex \quad $H_1 : \bt^{*} \to \Zq^{n\times m}$ \Comment{seed expansion, Rem.~\ref{rem:seeds}}
+\Statex \quad $H_2 : \bt^{\kappa} \to \bt^{\kappa}$ \Comment{payload key derivation}
+\Statex \quad $H_3 : \bt^{*} \to \Zq^{n}$ \Comment{message-to-target for $\ABS$}
+\Statex \quad $H_4 : \bt^{\kappa} \to \bt^{\kappa}$ \Comment{search-tag function}
+\State $\PP := \big(n,q,m,h,\sigma,\alpha,\kappa,\ \mathsf{pp}_{\mathrm{cp}},\mathsf{pp}_{\mathrm{kp}},\mathsf{pp}_{\mathrm{abs}},\ \mathbf{A}_h,\ H_1,\dots,H_4\big)$
+\State $\MK := \big(\mathsf{msk}_{\mathrm{cp}},\ \mathsf{msk}_{\mathrm{kp}},\ \mathsf{msk}_{\mathrm{abs}}\big)$
 \State \Return $(\PP,\MK)$
 \end{algorithmic}
 \end{algorithm}
 
 Algorithm~\ref{alg:setup} is the lattice analogue of ABDSRS's $\KGC$ setup: the pairing tuple
 $\langle p,\mathbb{G},\mathbb{G}_T,e\rangle$ with generators $g,g_1,\dots,g_{15}$
-(Section 4.1 of~\cite{bera2023designing}) is replaced by $\mathbf{A}_0$ with master trapdoor
-$\mathbf{T}_{\mathbf{A}_0}$, and the per-attribute generators are replaced by per-attribute
-matrices $\mathbf{A}_x$. Note that $\Setup$ creates one matrix per attribute, so the public
-parameters contain $|U|+2$ matrices in $\Zq^{n\times m}$; this is the dominant cost in
-Section~\ref{sec:performance}, and Remark~\ref{rem:seeds} discusses seed derivation via
-$H_1$.
+(Section 4.1 of~\cite{bera2023designing}) is replaced by the three lattice building blocks and
+the digest matrix $\mathbf{A}_h$. Under the dimension model of Remark~\ref{rem:dimmodel} the
+access-control layer contributes one matrix in $\Zq^{n\times m}$ per attribute, and the
+keyword layer one per keyword name, so $\PP$ holds $2|U|+3$ such matrices when
+$|U^{\circ}| = |U|$. This is the dominant cost in Section~\ref{sec:performance}, and
+Remark~\ref{rem:seeds} discusses seed derivation via $H_1$.
 
 \begin{Remark}[Seed derivation of public matrices]
 \label{rem:seeds}
-Each $\mathbf{A}_x$ may be defined as $H_1(\mathsf{seed}\Vert x)$ for a $256$-bit public
-seed, as is standard in lattice KEM and signature standards. This reduces the
-\emph{transmitted} public parameters to $32(|U|+2)$ bytes plus $\mathbf{u}$, but it does not
-reduce the working memory or the arithmetic cost, since every matrix must be expanded before
-use. Table~\ref{tab:concrete} reports both figures, and neither is presented as though it
-were the other.
+Every uniform public matrix, in both the access-control and the keyword layer, may be defined
+as $H_1(\mathsf{seed}\Vert\,\text{index})$ for a single $256$-bit public seed, as is standard
+in lattice KEM and signature standards. This reduces the \emph{transmitted} public parameters
+to $32(2|U|+4)$ bytes when $|U^{\circ}| = |U|$, counting one seed per derivable matrix and one
+for the target matrix $\mathbf{U}$. It does not reduce the working memory or the arithmetic
+cost, since every matrix must be expanded before use.
+Table~\ref{tab:concrete} reports both figures, and neither is presented as though it were the
+other.
 \end{Remark}
 
 \subsection{Key generation}
@@ -988,38 +1050,37 @@ were the other.
 \Require attribute set $A\subseteq U$, $\mathsf{mode}\in\{\mathsf{dec},\mathsf{sign}\}$
 \Ensure decryption key $\DK_{A}$ or signing key $\SK_{A}$
 \If{$\mathsf{mode} = \mathsf{dec}$}
-    \State $\mathbf{F}_{A} := [\,\mathbf{A}_0 \;\Vert\; \textstyle\sum_{x\in A}\mathbf{A}_x\,] \in \Zq^{n\times 2m}$
-    \State $\mathbf{T}_{\mathbf{F}_A} \leftarrow \ExtBasis(\mathbf{T}_{\mathbf{A}_0},\mathbf{F}_{A})$ \Comment{Def.~\ref{def:extbasis}; $\norm{\widetilde{\mathbf{T}}_{\mathbf{F}_A}} = \norm{\widetilde{\mathbf{T}}_{\mathbf{A}_0}}$}
-    \State $\mathbf{e}_{A} \leftarrow \SamplePre(\mathbf{F}_{A},\mathbf{T}_{\mathbf{F}_A},\mathbf{u},\sigma) \in \Z^{2m}$ \Comment{$\mathbf{F}_{A}\mathbf{e}_{A} = \mathbf{u} \bmod q$, $\norm{\mathbf{e}_A}\le\sigma\sqrt{2m}$}
-    \State \Return $\DK_{A} := (A,\mathbf{e}_{A})$
+    \State $\mathsf{sk}^{\mathrm{cp}}_{A} \leftarrow \CPABE.\KeyGen(\mathsf{msk}_{\mathrm{cp}},A)$ \Comment{Def.~\ref{def:cpabe}; a matrix in $\Z^{2m\times\kappa}$ under Rem.~\ref{rem:dimmodel}}
+    \State \Return $\DK_{A} := (A,\mathsf{sk}^{\mathrm{cp}}_{A})$
 \Else
-    \State $\mathsf{sk}^{\mathrm{abs}}_{A} \leftarrow \ABS.\KeyGen(\mathsf{msk}_{\mathrm{abs}},A)$
+    \State $\mathsf{sk}^{\mathrm{abs}}_{A} \leftarrow \ABS.\KeyGen(\mathsf{msk}_{\mathrm{abs}},A)$ \Comment{Def.~\ref{def:abs}}
     \State \Return $\SK_{A} := (A,\mathsf{sk}^{\mathrm{abs}}_{A})$
 \EndIf
 \end{algorithmic}
 \end{algorithm}
 
-The decryption-key branch of Algorithm~\ref{alg:keygen} returns a vector of width $2m$, which
-is the width of $\mathbf{F}_A$; the earlier version returned a width-$m$ vector and counted
-it as $m$ components in the size tables, which was inconsistent with the matrix it was
-supposed to invert. All sizes in Section~\ref{sec:performance} use $2m$.
+Neither branch of Algorithm~\ref{alg:keygen} opens its building block. Two errors in earlier
+versions are removed by this: a width-$m$ preimage was counted against a width-$2m$ matrix,
+and a single preimage vector was used where $\kappa$ independent targets are required
+(Remark~\ref{rem:dimmodel}). All sizes in Section~\ref{sec:performance} use a key of
+dimension $2m\times\kappa$.
 
 \subsection{Attribute-based online/offline signcryption}
 \label{subsec:signcrypt}
 
 \begin{algorithm}[htbp]
-\caption{$\OffSC(\PP,\ell_{\max},\varsigma_{\max})$}
+\caption{$\OffSC(\PP,\ell_{\max})$}
 \label{alg:offsigncrypt}
 \begin{algorithmic}[1]
-\Require bounds $\ell_{\max}$ on the number of DNF clauses and $\varsigma_{\max}$ on the keyword-set size
+\Require bound $\ell_{\max}$ on the number of DNF clauses
 \Ensure message-independent intermediate ciphertext $\mathsf{IC}$
 \State $K \xleftarrow{\$} \bt^{\kappa}$, \; $\tau \xleftarrow{\$} \bt^{\kappa}$ \Comment{payload key and search-tag preimage}
-\State $\mathbf{s} \xleftarrow{\$} \Zq^{n}$ \Comment{shared LWE secret across all clauses}
 \For{$j \in [\ell_{\max}]$}
-    \State $\mathbf{e}_j \xleftarrow{\$} \chi^{2m}$ \Comment{clause noise, $\chi = D_{\Z,\alpha q}$}
+    \State $r_j \xleftarrow{\$} \mathcal{R}_{\mathrm{cp}}$ \Comment{randomness for one $\CPABE.\Enc$ invocation}
 \EndFor
-\State $\mathbf{e}_u \xleftarrow{\$} \chi^{\kappa}$ \Comment{encapsulation noise}
-\State \Return $\mathsf{IC} := (K,\tau,\mathbf{s},\{\mathbf{e}_j\}_{j\in[\ell_{\max}]},\mathbf{e}_u)$
+\State $r_{\mathrm{kp}} \xleftarrow{\$} \mathcal{R}_{\mathrm{kp}}$ \Comment{randomness for $\KPABE.\Enc$}
+\State $\mathsf{nc} \xleftarrow{\$} \bt^{96}$ \Comment{AEAD nonce}
+\State \Return $\mathsf{IC} := (K,\tau,\{r_j\}_{j\in[\ell_{\max}]},r_{\mathrm{kp}},\mathsf{nc})$
 \end{algorithmic}
 \end{algorithm}
 
@@ -1030,31 +1091,32 @@ supposed to invert. All sizes in Section~\ref{sec:performance} use $2m$.
 \Require message $\mathit{msg}\in\bt^{*}$, encryption policy $\mathcal{P}_e$ with DNF clauses $S_1,\dots,S_{\ell_e}$, signing policy $\mathcal{P}_s$, keyword set $W$ with generic names $W^{\circ}$
 \Ensure ciphertext $\CT$, or $\bot$
 \State \textbf{if} $\mathcal{P}_s(A_s) = \false$ \textbf{then return} $\bot$ \Comment{explicit signing-policy check}
-\For{$j \in [\ell_e]$} \Comment{one CP-ABE ciphertext per DNF clause, shared $\mathbf{s}$ and $K$}
-    \State $\mathbf{c}_j := \mathbf{F}_{S_j}^{\top}\mathbf{s} + \mathbf{e}_j \bmod q \in \Zq^{2m}$, \quad where $\mathbf{F}_{S_j} := [\,\mathbf{A}_0 \Vert \sum_{x\in S_j}\mathbf{A}_x\,]$
-    \State $\mathbf{d}_j := \hSIS(\mathbf{c}_j) \in \Zq^{n}$ \Comment{binding digest, Def.~\ref{def:digest}}
+\For{$j \in [\ell_e]$} \Comment{one $\CPABE$ ciphertext per DNF clause, same payload $K$}
+    \State $\mathsf{ct}_j := \CPABE.\Enc(\mathsf{pp}_{\mathrm{cp}},S_j,K;\,r_j)$
+    \State $\mathbf{d}_j := \hSIS(\mathsf{ct}_j) \in \Zq^{n}$ \Comment{binding digest over the serialization, Def.~\ref{def:digest}}
 \EndFor
-\State $\mathbf{c}_u := \mathbf{u}^{\top}\mathbf{s}\cdot\mathbf{1}_{\kappa} + \mathbf{e}_u + \lfloor q/2 \rfloor\cdot K \bmod q \in \Zq^{\kappa}$ \Comment{key encapsulation}
-\State $\mathsf{ct}_W \leftarrow \KPABE.\Enc(\mathsf{pp}_{\mathrm{kp}},W^{\circ},\tau)$ \Comment{keyword layer, Section~\ref{subsec:keywords}}
-\State $\mathsf{tag} := H_5(\tau) \in \bt^{\kappa}$ \Comment{public match target}
-\State $k := H_3(K)$, \quad $\mathsf{nc} \xleftarrow{\$} \bt^{96}$
+\State $\mathsf{ct}_W := \KPABE.\Enc(\mathsf{pp}_{\mathrm{kp}},W^{\circ},\tau;\,r_{\mathrm{kp}})$ \Comment{keyword layer, Section~\ref{subsec:keywords}}
+\State $\mathsf{tag} := H_4(\tau) \in \bt^{\kappa}$ \Comment{public match target}
+\State $k := H_2(K)$
 \State $\mathsf{hdr} := \big(\mathcal{P}_e \Vert \mathcal{P}_s \Vert W^{\circ} \Vert \mathsf{tag} \Vert \{\mathbf{d}_j\}_{j\in[\ell_e]}\big)$
 \State $c_{\mathrm{dem}} \leftarrow \AEAD.\Enc(k,\mathsf{nc},\mathsf{hdr},\mathit{msg})$ \Comment{KEM--DEM, Section~\ref{subsec:aead}}
-\State $\varsigma_{\mathrm{sig}} \leftarrow \ABS.\Sign\big(\mathsf{sk}^{\mathrm{abs}}_{A_s},\mathcal{P}_s,\ H_4(\mathsf{hdr}\Vert \mathsf{nc} \Vert c_{\mathrm{dem}} \Vert \mathbf{c}_u)\big)$
-\State \Return $\CT := \big(\mathcal{P}_e,\mathcal{P}_s,W^{\circ},\{\mathbf{c}_j\}_{j\in[\ell_e]},\{\mathbf{d}_j\}_{j\in[\ell_e]},\mathbf{c}_u,\mathsf{ct}_W,\mathsf{tag},\mathsf{nc},c_{\mathrm{dem}},\varsigma_{\mathrm{sig}}\big)$
+\State $\mu_{\mathrm{sig}} \leftarrow \ABS.\Sign\big(\mathsf{sk}^{\mathrm{abs}}_{A_s},\mathcal{P}_s,\ H_3(\mathsf{hdr}\Vert \mathsf{nc} \Vert c_{\mathrm{dem}})\big)$
+\State \Return $\CT := \big(\mathcal{P}_e,\mathcal{P}_s,W^{\circ},\{\mathsf{ct}_j\}_{j\in[\ell_e]},\{\mathbf{d}_j\}_{j\in[\ell_e]},\mathsf{ct}_W,\mathsf{tag},\mathsf{nc},c_{\mathrm{dem}},\mu_{\mathrm{sig}}\big)$
 \end{algorithmic}
 \end{algorithm}
 
-Three changes from the earlier version are worth naming. First, the payload is no longer a
-one-time pad $\mathit{msg}\oplus H_3(\cdot)$, which is defined only for a fixed-length bit
-string and provides no integrity; it is an AEAD ciphertext under a key encapsulated by the
+Four points are worth naming. First, the payload is no longer a one-time pad
+$\mathit{msg}\oplus H(\cdot)$, which is defined only for a fixed-length bit string and
+provides no integrity; it is an AEAD ciphertext under a key encapsulated by the
 attribute-based layer. Second, the digests $\{\mathbf{d}_j\}$ are inside the signed header,
 which is what binds the stored ciphertext components to the data owner. Third, the
 signing-policy check $\mathcal{P}_s(A_s)=\true$ is explicit, and $\ABS.\Sign$ proves that it
-holds without revealing $A_s$ (Definition~\ref{def:abs}). The online/offline split is
-preserved: $\mathbf{s}$, the noise vectors, $K$ and $\tau$ are message-independent and are
-drawn in Algorithm~\ref{alg:offsigncrypt}, so the online phase performs matrix-vector
-products and additions modulo $q$ only.
+holds without revealing $A_s$ (Definition~\ref{def:abs}). Fourth, the $\ell_e$ clause
+ciphertexts are independent invocations of $\CPABE.\Enc$ on a common payload $K$; they do not
+share a secret, and the hybrid over them is what contributes the factor $\ell_e$ to
+Theorem~\ref{thm:confidentiality}. The online/offline split is preserved: $K$, $\tau$, the
+per-invocation randomness and the nonce are message-independent and are drawn in
+Algorithm~\ref{alg:offsigncrypt}.
 
 \subsection{Keyword layer and trapdoor generation}
 \label{subsec:keywords}
@@ -1082,7 +1144,7 @@ in the cryptographic sense, and we do not claim that it is.
 \caption{$\DRRGen(\PP,\DK_{A_d},\TD_{\mathcal{P}_t},\mathcal{P}_e)$}
 \label{alg:drr}
 \begin{algorithmic}[1]
-\Require decryption key $\DK_{A_d} = (A_d,\mathbf{e}_{A_d})$, keyword trapdoor, target encryption policy
+\Require attribute set $A_d$ from $\DK_{A_d}$, keyword trapdoor $\TD_{\mathcal{P}_t} = (\mathcal{P}_t,\mathsf{sk}_{\mathcal{P}_t})$, target encryption policy $\mathcal{P}_e$
 \Ensure data retrieval request $\DRR$
 \State $j^{\ast} := \mathsf{Idx}(\mathcal{P}_e,A_d)$ \Comment{Section~\ref{subsec:policyclass}}
 \State \textbf{if} $j^{\ast} = \bot$ \textbf{then return} $\bot$
@@ -1093,11 +1155,21 @@ in the cryptographic sense, and we do not claim that it is.
 The $\DRR$ contains the clause index $j^{\ast}$ rather than a blinded transform key. This is
 a deliberate departure from ABDSRS, and it has a cost that we state rather than hide: the
 cloud learns which DNF clause the $\DU$'s attribute set satisfies. It does not learn $A_d$
-itself, and it never receives $\mathbf{e}_{A_d}$, so the $\DU$'s decryption key is not
-exposed to the cloud at all, which the pairing-based transform-key mechanism cannot claim.
+itself, and it receives no part of $\mathsf{sk}^{\mathrm{cp}}_{A_d}$. In ABDSRS the cloud
+receives a blinded transform key derived from the user's key rather than the key itself, so
+the difference is that PQ-ABDSRS transmits no key material at all, not that ABDSRS exposes a
+key.
 
 \subsection{Data retrieval}
 \label{subsec:testtransform}
+
+Data retrieval is two algorithms run by $\CS$ on a stored record. $\Test$ decides whether the
+record matches the keyword policy of the request and, when it does, returns the preimage
+$\tau'$ that the $\DU$ will check against the signed $\mathsf{tag}$. $\Transform$ then selects
+the one clause ciphertext the $\DU$ can decrypt and assembles the reply. Neither algorithm
+holds a secret of its own: $\CS$ acts only on the trapdoor supplied in the $\DRR$ and on
+public data, which is why a dishonest execution is detectable by
+Section~\ref{subsec:verifmech} rather than preventable.
 
 \begin{algorithm}[htbp]
 \caption{$\Test(\PP,\CT,\DRR)$}
@@ -1105,8 +1177,9 @@ exposed to the cloud at all, which the pairing-based transform-key mechanism can
 \begin{algorithmic}[1]
 \Require stored ciphertext $\CT$, request $\DRR = (\mathcal{P}_t,\mathsf{sk}_{\mathcal{P}_t},j^{\ast})$
 \Ensure $(\mathsf{match},\tau')$ or $\bot$
+\State Parse $\CT$ for $\mathsf{ct}_W$ and $\mathsf{tag}$
 \State $\tau' \leftarrow \KPABE.\Dec(\mathsf{sk}_{\mathcal{P}_t},\mathsf{ct}_W)$
-\State \textbf{if} $\tau' = \bot$ \textbf{or} $H_5(\tau') \ne \mathsf{tag}$ \textbf{then return} $\bot$
+\State \textbf{if} $\tau' = \bot$ \textbf{or} $H_4(\tau') \ne \mathsf{tag}$ \textbf{then return} $\bot$
 \State \Return $(\mathsf{match},\tau')$ \Comment{$\tau'$ is the cloud's evidence of a genuine match}
 \end{algorithmic}
 \end{algorithm}
@@ -1117,10 +1190,11 @@ exposed to the cloud at all, which the pairing-based transform-key mechanism can
 \begin{algorithmic}[1]
 \Require stored ciphertext $\CT$, request $\DRR$
 \Ensure transformed ciphertext $\CT_{\mathrm{out}}$ or $\bot$
-\State $(\mathsf{match},\tau') \leftarrow \Test(\PP,\CT,\DRR)$; \textbf{if} $\bot$ \textbf{then return} $\bot$
+\State Parse $\CT$ for $\mathcal{P}_e$ (hence $\ell_e$) and $\{\mathsf{ct}_j\}_{j\in[\ell_e]}$; parse $\DRR$ for $j^{\ast}$
+\State $\rho \leftarrow \Test(\PP,\CT,\DRR)$; \textbf{if} $\rho = \bot$ \textbf{then return} $\bot$; \textbf{else} parse $\rho = (\mathsf{match},\tau')$
 \State \textbf{if} $j^{\ast} \notin [\ell_e]$ \textbf{then return} $\bot$
-\State $\mathbf{c}_{\mathrm{out}} := \CPABE.\mathsf{Reduce}(\{\mathbf{c}_j\}_{j\in[\ell_e]},j^{\ast}) = \mathbf{c}_{j^{\ast}}$ \Comment{Definition~\ref{def:cpabe}}
-\State \Return $\CT_{\mathrm{out}} := \big(j^{\ast},\mathbf{c}_{\mathrm{out}},\mathbf{c}_u,\tau',\mathcal{P}_e,\mathcal{P}_s,W^{\circ},\{\mathbf{d}_j\}_{j\in[\ell_e]},\mathsf{tag},\mathsf{nc},c_{\mathrm{dem}},\varsigma_{\mathrm{sig}}\big)$
+\State $\mathsf{ct}_{\mathrm{out}} := \CPABE.\mathsf{Select}(\{\mathsf{ct}_j\}_{j\in[\ell_e]},j^{\ast}) = \mathsf{ct}_{j^{\ast}}$ \Comment{Definition~\ref{def:cpabe}}
+\State \Return $\CT_{\mathrm{out}} := \big(j^{\ast},\mathsf{ct}_{\mathrm{out}},\tau',\mathcal{P}_e,\mathcal{P}_s,W^{\circ},\{\mathbf{d}_j\}_{j\in[\ell_e]},\mathsf{tag},\mathsf{nc},c_{\mathrm{dem}},\mu_{\mathrm{sig}}\big)$
 \end{algorithmic}
 \end{algorithm}
 
@@ -1128,23 +1202,23 @@ exposed to the cloud at all, which the pairing-based transform-key mechanism can
 \label{subsec:verifmech}
 
 ABDSRS verifies the cloud implicitly: a cheating cloud cannot produce values satisfying the
-pairing identity $X_1X_2 = k_T^{H_5(\mathsf{ot})}$ without knowing a discrete logarithm
+pairing identity $X_1X_2 = k_T^{\mathsf{H}(\mathsf{ot})}$, in the notation of that paper,
+without knowing a discrete logarithm
 (Remark 6 of~\cite{bera2023designing}). There is no lattice identity with that property, and
 by Remark~\ref{rem:commitment-insufficient} a homomorphic commitment does not substitute for
 one. PQ-ABDSRS instead makes the check explicit and splits it in two.
 
 \emph{Correctness of $\Transform$.} The $\DO$ signs the digest list $\{\mathbf{d}_j\}$ inside
-$\mathsf{hdr}$. The $\DU$ receives $\mathbf{c}_{\mathrm{out}}$ and $j^{\ast}$, recomputes
-$\hSIS(\mathbf{c}_{\mathrm{out}})$ and compares it with $\mathbf{d}_{j^{\ast}}$, having first
-verified $\varsigma_{\mathrm{sig}}$ over the header that contains the digests. A cloud that
-returns anything other than the genuine $\mathbf{c}_{j^{\ast}}$ must therefore either find a
-digest collision or forge an ABS signature. This is the authenticated relation between the
+$\mathsf{hdr}$. The $\DU$ receives $\mathsf{ct}_{\mathrm{out}}$ and $j^{\ast}$, recomputes
+$\hSIS(\mathsf{ct}_{\mathrm{out}})$ and compares it with $\mathbf{d}_{j^{\ast}}$, having first
+verified $\mu_{\mathrm{sig}}$ over the header that contains the digests. A cloud that
+returns anything other than the genuine $\mathsf{ct}_{j^{\ast}}$ must therefore either find a digest collision or forge a $\ABS$ signature. This is the authenticated relation between the
 stored object, the applied function and the output that Remark~\ref{rem:commitment-insufficient}
 identifies as missing.
 
 \emph{Correctness of $\Test$.} The cloud returns $\tau'$, and the $\DU$ checks
-$H_5(\tau') = \mathsf{tag}$ against the signed $\mathsf{tag}$. A cloud that did not actually
-decrypt $\mathsf{ct}_W$ under a satisfying trapdoor must invert $H_5$ on a target it did not
+$H_4(\tau') = \mathsf{tag}$ against the signed $\mathsf{tag}$. A cloud that did not actually
+decrypt $\mathsf{ct}_W$ under a satisfying trapdoor must invert $H_4$ on a target it did not
 choose.
 
 \subsection{Unsigncryption and verification}
@@ -1154,16 +1228,15 @@ choose.
 \caption{$\USV(\PP,\DK_{A_d},\CT_{\mathrm{out}})$}
 \label{alg:unsigncrypt}
 \begin{algorithmic}[1]
-\Require decryption key $\DK_{A_d} = (A_d,\mathbf{e}_{A_d})$, transformed ciphertext
+\Require decryption key $\DK_{A_d} = (A_d,\mathsf{sk}^{\mathrm{cp}}_{A_d})$, transformed ciphertext
 \Ensure $\mathit{msg}$ or $\bot$
 \State Parse $\CT_{\mathrm{out}}$; set $\mathsf{hdr} := (\mathcal{P}_e\Vert\mathcal{P}_s\Vert W^{\circ}\Vert\mathsf{tag}\Vert\{\mathbf{d}_j\})$
-\State \textbf{if} $\ABS.\Verify(\mathsf{pp}_{\mathrm{abs}},\mathcal{P}_s,H_4(\mathsf{hdr}\Vert\mathsf{nc}\Vert c_{\mathrm{dem}}\Vert\mathbf{c}_u),\varsigma_{\mathrm{sig}}) = \mathsf{reject}$ \textbf{then return} $\bot$
-\State \textbf{if} $H_5(\tau') \ne \mathsf{tag}$ \textbf{then return} $\bot$ \Comment{$\Test$ was not executed honestly}
-\State \textbf{if} $\hSIS(\mathbf{c}_{\mathrm{out}}) \ne \mathbf{d}_{j^{\ast}}$ \textbf{then return} $\bot$ \Comment{$\Transform$ was not executed honestly}
+\State \textbf{if} $\ABS.\Verify(\mathsf{pp}_{\mathrm{abs}},\mathcal{P}_s,H_3(\mathsf{hdr}\Vert\mathsf{nc}\Vert c_{\mathrm{dem}}),\mu_{\mathrm{sig}}) = \mathsf{reject}$ \textbf{then return} $\bot$
+\State \textbf{if} $H_4(\tau') \ne \mathsf{tag}$ \textbf{then return} $\bot$ \Comment{$\Test$ was not executed honestly}
+\State \textbf{if} $\hSIS(\mathsf{ct}_{\mathrm{out}}) \ne \mathbf{d}_{j^{\ast}}$ \textbf{then return} $\bot$ \Comment{$\Transform$ was not executed honestly}
 \State \textbf{if} $S_{j^{\ast}} \not\subseteq A_d$ \textbf{then return} $\bot$
-\State $\mathbf{z} := \mathbf{c}_u - \inner{\mathbf{e}_{A_d}}{\mathbf{c}_{\mathrm{out}}}\cdot\mathbf{1}_{\kappa} \bmod q \in \Zq^{\kappa}$
-\State $K' := \mathsf{Round}(\mathbf{z})$, where $\mathsf{Round}(z_i) := 1$ if $|z_i| > q/4$ and $0$ otherwise
-\State $\mathit{msg} \leftarrow \AEAD.\Dec(H_3(K'),\mathsf{nc},\mathsf{hdr},c_{\mathrm{dem}})$
+\State $K' \leftarrow \CPABE.\Dec(\mathsf{sk}^{\mathrm{cp}}_{A_d},\mathsf{ct}_{\mathrm{out}})$; \textbf{if} $K' = \bot$ \textbf{then return} $\bot$
+\State $\mathit{msg} \leftarrow \AEAD.\Dec(H_2(K'),\mathsf{nc},\mathsf{hdr},c_{\mathrm{dem}})$
 \State \Return $\mathit{msg}$ \Comment{$\AEAD.\Dec$ returns $\bot$ on tag failure}
 \end{algorithmic}
 \end{algorithm}
@@ -1178,60 +1251,61 @@ impossible as written, and omitted them from the size accounting.
 \section{Correctness}
 \label{sec:correctness}
 
+\begin{Definition}[Decryption-error bound of $\CPABE$]
+\label{def:babe}
+$\CPABE$ has decryption-error bound $B_{\mathrm{abe}}$ at modulus $q$ if, for every clause $S$,
+every $A\supseteq S$ and every $K\in\bt^{\kappa}$, honest execution of
+$\CPABE.\Dec(\mathsf{sk}_A,\CPABE.\Enc(\mathsf{pp},S,K))$ recovers $K$ whenever the additive
+error accumulated in each payload coordinate is at most $B_{\mathrm{abe}} < q/4$.
+\end{Definition}
+
+Under the dimension model of Remark~\ref{rem:dimmodel} the error in one payload coordinate is
+$\inner{\mathbf{e}_{A}}{\mathbf{e}_{S}} + e$, where $\mathbf{e}_{A}$ is the corresponding
+column of the key matrix, $\mathbf{e}_{S}$ is the ciphertext noise and $e$ is the
+encapsulation noise in that coordinate. Taking a union bound over the $\kappa$ payload
+coordinates, so that the tail factor is $\omega(\sqrt{\log\kappa})$ rather than the
+$\omega(\sqrt{\log m})$ of Definition~\ref{def:gaussian}, gives
+\begin{equation}
+\label{eq:noise}
+B_{\mathrm{abe}} \;=\; \big(\sigma\sqrt{2m} + 1\big)\cdot\alpha q\cdot\omega(\sqrt{\log \kappa})
+\;<\; \frac{q}{4} .
+\end{equation}
+Section~\ref{subsec:params} fixes $q$ from~\eqref{eq:noise}. Any instantiation whose own error
+bound differs must substitute it here; the expression is the bound for the inner-product
+decryption common to the dual-Regev family, not a figure taken from~\cite{zhang2012ciphertext}.
+
 \begin{Theorem}[Correctness]
 \label{thm:correctness}
 Let $\mathcal{P}_e$ have DNF clauses $S_1,\dots,S_{\ell_e}$ and let $A_d$ satisfy
-$\mathcal{P}_e$ with $j^{\ast} = \mathsf{Idx}(\mathcal{P}_e,A_d)$ and $S_{j^{\ast}} \subseteq A_d$.
-Suppose all parties are honest and the parameters satisfy
-\begin{equation}
-\label{eq:noise}
-B_{\mathrm{dec}} \;:=\; \big(\sigma\sqrt{2m} + \sqrt{\kappa}\,\big)\cdot\alpha q\cdot\omega(\sqrt{\log n})
-\;<\; \frac{q}{4} .
-\end{equation}
-Then $\USV(\PP,\DK_{A_d},\Transform(\PP,\CT,\DRR)) = \mathit{msg}$ with probability at least
-$1-\negl(n)$.
+$\mathcal{P}_e$ with $j^{\ast} = \mathsf{Idx}(\mathcal{P}_e,A_d)$, so $S_{j^{\ast}} \subseteq A_d$.
+Suppose all parties are honest, $\CPABE$ and $\KPABE$ are correct in the sense of
+Definitions~\ref{def:cpabe} and~\ref{def:kpabe}, $\CPABE$ satisfies~\eqref{eq:noise}, and
+$\AEAD$ is correct. Then
+$\USV(\PP,\DK_{A_d},\Transform(\PP,\CT,\DRR)) = \mathit{msg}$ with probability at least
+$1-\negl(\lambda)$.
 \end{Theorem}
 
 \begin{proof}
-Honest execution gives $\mathbf{c}_{\mathrm{out}} = \mathbf{c}_{j^{\ast}} =
-\mathbf{F}_{S_{j^{\ast}}}^{\top}\mathbf{s} + \mathbf{e}_{j^{\ast}}$. The three verification
-checks pass by construction. Since $S_{j^{\ast}}\subseteq A_d$ we may take
-$\DK_{A_d}$ to be sampled for the set $S_{j^{\ast}}$, so
-$\mathbf{F}_{S_{j^{\ast}}}\mathbf{e}_{A_d} = \mathbf{u} \bmod q$. Therefore, for each
-coordinate $i\in[\kappa]$,
-\[
-z_i \;=\; \big(\mathbf{u}^{\top}\mathbf{s} + e_{u,i} + \lfloor q/2\rfloor K_i\big)
-        - \inner{\mathbf{e}_{A_d}}{\mathbf{F}_{S_{j^{\ast}}}^{\top}\mathbf{s} + \mathbf{e}_{j^{\ast}}}
-\;=\; \lfloor q/2\rfloor K_i \;+\; e_{u,i} \;-\; \inner{\mathbf{e}_{A_d}}{\mathbf{e}_{j^{\ast}}} ,
-\]
-because $\inner{\mathbf{e}_{A_d}}{\mathbf{F}_{S_{j^{\ast}}}^{\top}\mathbf{s}}
-= (\mathbf{F}_{S_{j^{\ast}}}\mathbf{e}_{A_d})^{\top}\mathbf{s} = \mathbf{u}^{\top}\mathbf{s}$.
-By Definition~\ref{def:samplepre}, $\norm{\mathbf{e}_{A_d}} \le \sigma\sqrt{2m}$ except with
-probability $\negl(n)$. For a fixed $\mathbf{y}\in\Z^{2m}$ and
-$\mathbf{e}\sim D_{\Z^{2m},\alpha q}$, the inner product $\inner{\mathbf{y}}{\mathbf{e}}$ is
-distributed as a one-dimensional discrete Gaussian of parameter
-$\alpha q\norm{\mathbf{y}}$~\cite{gentry2008trapdoors}, hence
-\[
-\big|\inner{\mathbf{e}_{A_d}}{\mathbf{e}_{j^{\ast}}}\big|
-\;\le\; \sigma\sqrt{2m}\cdot\alpha q\cdot\omega(\sqrt{\log n})
-\]
-except with probability $\negl(n)$, and similarly
-$|e_{u,i}| \le \alpha q\,\omega(\sqrt{\log n})$. Summing gives $B_{\mathrm{dec}}$. Bounding the
-inner product by Cauchy--Schwarz instead, that is by
-$\norm{\mathbf{e}_{A_d}}\cdot\norm{\mathbf{e}_{j^{\ast}}}$, overestimates the error by a factor
-of order $\sqrt{2m}$ times the ratio of the error standard deviation to
-$\alpha q\,\omega(\sqrt{\log n})$, which at the parameters of
-Section~\ref{subsec:params} is about $34$, or roughly five bits of modulus. Under~\eqref{eq:noise} the rounding
-step recovers $K' = K$, hence $H_3(K') = H_3(K) = k$ and $\AEAD.\Dec$ returns $\mathit{msg}$ by
-the correctness of $\AEAD$.
+Honest execution of $\Test$ gives $\tau' = \tau$ by correctness of $\KPABE$, since
+$\mathcal{P}_t(W^{\circ}) = \true$, so line 3 of Algorithm~\ref{alg:unsigncrypt} accepts.
+Honest execution of $\Transform$ gives
+$\mathsf{ct}_{\mathrm{out}} = \mathsf{ct}_{j^{\ast}}$, so
+$\hSIS(\mathsf{ct}_{\mathrm{out}}) = \mathbf{d}_{j^{\ast}}$ and line 4 accepts; line 2 accepts
+because the header is the one the $\DO$ signed, and line 5 because
+$S_{j^{\ast}}\subseteq A_d$. Line 6 therefore invokes $\CPABE.\Dec$ on a ciphertext for a
+clause contained in $A_d$, which returns $K' = K$ except with probability $\negl(\lambda)$ by
+correctness of $\CPABE$ under~\eqref{eq:noise}. Hence $H_2(K') = H_2(K) = k$, and
+$\AEAD.\Dec$ with the correct key, nonce and associated data returns $\mathit{msg}$.
 \end{proof}
 
-Condition~\eqref{eq:noise} is what fixes the modulus. With the parameters of
-Section~\ref{subsec:params}, instantiating $\omega(\sqrt{\log n})$ by the constant $5$, the
-left-hand side of~\eqref{eq:noise} is $2^{24.1}$ against $q/4 = 2^{28}$, leaving a factor of
-$2^{3.9}$ of margin. The bound involves a single clause, since decryption uses exactly one
-$\mathbf{c}_{j^{\ast}}$, so it does not grow with $\ell_e$ even though all clauses share the
-secret $\mathbf{s}$.
+The scheme adds no noise of its own: $\hSIS$ is exact, the $\AEAD$ layer is exact, and the
+random-oracle checks are exact. All decryption error lives inside $\CPABE$, which is why
+Definition~\ref{def:babe} isolates it. Under~\eqref{eq:noise}, with the parameters of
+Section~\ref{subsec:params} and $\omega(\sqrt{\log\kappa})$ instantiated by the constant $5$,
+the left-hand side is $2^{24.1}$ against $q/4 = 2^{28}$, leaving $2^{3.9}$ of margin. The bound
+involves a single clause, since decryption uses exactly one $\mathsf{ct}_{j^{\ast}}$, so it does
+not grow with $\ell_e$.
+
 %=================================================================
 \section{Security Analysis}
 \label{sec:security}
@@ -1253,9 +1327,10 @@ which oracles are available.
 \label{def:indcpa}
 The challenger $\Chal$ and adversary $\Adv$ interact as follows.
 \begin{enumerate}[leftmargin=*,itemsep=1pt]
-    \item $\Adv$ outputs a challenge encryption policy $\mathcal{P}_e^{\star}$ with DNF
-          clauses $S_1^{\star},\dots,S_{\ell}^{\star}$, and a challenge keyword set
-          $W^{\star}$.
+    \item $\Adv$ outputs a challenge encryption policy $\mathcal{P}_e^{\star}$ with DNF clauses
+          $S_1^{\star},\dots,S_{\ell}^{\star}$, where $\ell$ denotes their number, a challenge
+          keyword set $W^{\star}$, and a signing policy $\mathcal{P}_s$ together with an
+          attribute set $A_s$ satisfying it, under which the challenge will be signed.
     \item $\Chal$ runs $\Setup(1^{\lambda},U,U^{\circ})\to(\PP,\MK)$ and gives $\PP$ to
           $\Adv$.
     \item $\Adv$ adaptively queries: $\mathcal{O}_{\KeyGen}(A_d)$, answered for any $A_d$
@@ -1278,33 +1353,39 @@ A \emph{Type-1} adversary is additionally denied $\mathcal{O}_{\KTG}$ on every p
 \begin{Theorem}[Data confidentiality]
 \label{thm:confidentiality}
 If $\CPABE$ is selectively IND-CPA secure under $\LWE_{n,q,\chi,m}$, $\AEAD$ is IND-CPA
-secure, and $H_3$ is a random oracle, then for every PPT adversary $\Adv$ of either type,
+secure, and $H_2$ is a random oracle, then for every PPT adversary $\Adv$ of either type,
 $\mathsf{Adv}^{\mathsf{IND\text{-}CPA}}_{\Adv}(\lambda) \le
-\mathsf{Adv}^{\CPABE}_{\Chal}(\lambda) + \mathsf{Adv}^{\AEAD}_{\Chal}(\lambda) +
-q_{H}\cdot 2^{-\kappa}$, where $q_H$ bounds the number of $H_3$ queries.
+\ell\cdot\mathsf{Adv}^{\CPABE}_{\Chal}(\lambda) + \mathsf{Adv}^{\AEAD}_{\Chal}(\lambda) +
+q_H\cdot 2^{-\kappa}$, where $\ell$ is the number of clauses of $\mathcal{P}_e^{\star}$ and
+$q_H$ bounds the number of $H_2$ queries.
 \end{Theorem}
 
 \begin{proof}
-We proceed by three games.
-$\mathsf{G}_0$ is Definition~\ref{def:indcpa}.
-$\mathsf{G}_1$ replaces $\mathbf{c}_u$ and $\{\mathbf{c}_j^{\star}\}$ in $\CT^{\star}$ by an
-encapsulation of an independent uniform $\widetilde{K}\xleftarrow{\$}\bt^{\kappa}$ instead of
-$K$. A distinguisher between $\mathsf{G}_0$ and $\mathsf{G}_1$ yields a selective IND-CPA
-distinguisher against $\CPABE$: the reduction forwards $\mathcal{P}_e^{\star}$ as the
-challenge, obtains $\mathsf{pp}$, and answers $\mathcal{O}_{\KeyGen}(A_d)$ using the
-$\CPABE$ key oracle, which is permitted exactly when
+We proceed by a hybrid over the clauses followed by two game hops. $\mathsf{G}_0$ is
+Definition~\ref{def:indcpa}. For $t\in\{0,\dots,\ell\}$ let $\mathsf{H}_t$ be $\mathsf{G}_0$
+with the first $t$ clause ciphertexts $\mathsf{ct}_1^{\star},\dots,\mathsf{ct}_t^{\star}$
+replaced by encryptions of an independent uniform
+$\widetilde{K}\xleftarrow{\$}\bt^{\kappa}$; thus $\mathsf{H}_0 = \mathsf{G}_0$ and
+$\mathsf{H}_{\ell} =: \mathsf{G}_1$. The hybrid is needed because the $\ell$ clause
+ciphertexts are separate invocations of $\CPABE.\Enc$ on a common payload, whereas
+Definition~\ref{def:cpabe} gives indistinguishability for one invocation only.
+A distinguisher between $\mathsf{H}_{t-1}$ and $\mathsf{H}_t$ yields a selective IND-CPA
+distinguisher against $\CPABE$: the reduction forwards $S_t^{\star}$ as the challenge clause,
+obtains $\mathsf{pp}$, submits $(K,\widetilde{K})$, and answers $\mathcal{O}_{\KeyGen}(A_d)$
+using the $\CPABE$ key oracle, which is permitted exactly when
 $\mathcal{P}_e^{\star}(A_d)=\false$, that is when $S_j^{\star}\not\subseteq A_d$ for every
-$j$. The remaining oracles need no secret: $\mathcal{O}_{\Sign}$ and
-$\mathcal{O}_{\mathsf{SC}}$ are answered with $\ABS$ keys the reduction generates itself, and
-$\mathcal{O}_{\KTG}$ with $\KPABE$ keys likewise. Hence
-$|\Pr[\mathsf{G}_0]-\Pr[\mathsf{G}_1]| \le \mathsf{Adv}^{\CPABE}_{\Chal}(\lambda)$.
-$\mathsf{G}_2$ replaces $k = H_3(K)$ by a uniform $\widetilde{k}\xleftarrow{\$}\bt^{\kappa}$.
+$j$, and in particular for $j=t$. The remaining oracles need no secret:
+$\mathcal{O}_{\Sign}$ and $\mathcal{O}_{\mathsf{SC}}$ are answered with $\ABS$ keys the
+reduction generates itself, and $\mathcal{O}_{\KTG}$ with $\KPABE$ keys likewise. Summing
+over $t$ gives
+$|\Pr[\mathsf{G}_0]-\Pr[\mathsf{G}_1]| \le \ell\cdot\mathsf{Adv}^{\CPABE}_{\Chal}(\lambda)$.
+$\mathsf{G}_2$ replaces $k = H_2(K)$ by a uniform $\widetilde{k}\xleftarrow{\$}\bt^{\kappa}$.
 In $\mathsf{G}_1$ the value $K$ is information-theoretically hidden from $\Adv$, so the two
-games differ only if $\Adv$ queries $H_3$ at $K$, which happens with probability at most
+games differ only if $\Adv$ queries $H_2$ at $K$, which happens with probability at most
 $q_H 2^{-\kappa}$.
 In $\mathsf{G}_2$ the payload is encrypted under a key independent of the adversary's view,
-so $\Adv$'s advantage is bounded by $\mathsf{Adv}^{\AEAD}_{\Chal}(\lambda)$. Summing the
-three bounds gives the claim. The same argument applies verbatim to a Type-2 adversary,
+so $\Adv$'s advantage is bounded by $\mathsf{Adv}^{\AEAD}_{\Chal}(\lambda)$. Summing gives
+the claim. The same argument applies verbatim to a Type-2 adversary,
 since the additional $\mathcal{O}_{\KTG}$ access is answered without the $\CPABE$ master key.
 \end{proof}
 
@@ -1313,11 +1394,13 @@ since the additional $\mathcal{O}_{\KTG}$ access is answered without the $\CPABE
 The earlier version of this manuscript claimed IND-CCA2 security. That claim does not follow
 from the construction: no chosen-ciphertext transform is applied, and the proof supplied no
 simulation of a decryption oracle. Theorem~\ref{thm:confidentiality} therefore states
-IND-CPA. A CCA-secure variant is obtained by applying a Fujisaki--Okamoto style transform to
-the key-encapsulation layer~\cite{hhk2017fo}, at the cost of re-encryption during
-decapsulation; the $\AEAD$ layer already supplies ciphertext integrity for the payload, so
-the transform is needed only for the encapsulation. We leave that analysis to future work
-rather than asserting its conclusion.
+IND-CPA. A CCA-secure variant would be obtained by applying a Fujisaki--Okamoto style transform to the
+key-encapsulation layer~\cite{hhk2017fo}, at the cost of re-encryption during decapsulation.
+The $\AEAD$ layer already supplies ciphertext integrity for the payload, so the transform
+would be needed only for the encapsulation. We do not carry the analysis out: the transform
+requires a bound on the decryption-failure probability of $\CPABE$, which interacts
+with~\eqref{eq:noise} and would change the modulus. Asserting the conclusion without that
+check is exactly the kind of claim this revision removes elsewhere.
 \end{Remark}
 
 \subsection{Data unforgeability}
@@ -1341,11 +1424,10 @@ $\Adv$, $\mathsf{Adv}^{\mathsf{EUF\text{-}CMA}}_{\Adv}(\lambda) \le
 \begin{proof}
 The reduction forwards $\mathcal{P}_s^{\star}$ to its $\ABS$ challenger, generates the
 $\CPABE$ and $\KPABE$ master keys itself, and answers $\mathcal{O}_{\Sign}$ and the
-signcryption oracle using the $\ABS$ key and signing oracles. A winning $\CT^{\star}$
-contains an accepting $\varsigma_{\mathrm{sig}}$ on
-$H_4(\mathsf{hdr}^{\star}\Vert\mathsf{nc}^{\star}\Vert c_{\mathrm{dem}}^{\star}\Vert\mathbf{c}_u^{\star})$
-under $\mathcal{P}_s^{\star}$. Since the header was never signed by the oracle, and $H_4$ is
-collision resistant as a random oracle, this is an $\ABS$ forgery. Instantiating $\ABS$
+signcryption oracle using the $\ABS$ key and signing oracles. A winning $\CT^{\star}$ contains an accepting $\mu_{\mathrm{sig}}$ on
+$H_3(\mathsf{hdr}^{\star}\Vert\mathsf{nc}^{\star}\Vert c_{\mathrm{dem}}^{\star})$ under
+$\mathcal{P}_s^{\star}$. Since the header was never signed by the oracle, and $H_3$ is
+collision resistant as a random oracle, this is a forgery against $\ABS$. Instantiating $\ABS$
 with~\cite{ek2018abs} makes the bound concrete under $\SIS_{n,q,2m,\beta_s}$.
 \end{proof}
 
@@ -1376,33 +1458,35 @@ $\mathsf{Adv}^{\mathsf{verif}}_{\Adv}(\lambda) \le
 Suppose $\USV$ outputs $\mathit{msg}\notin\{\mathit{msg}^{\star},\bot\}$. Line 2 of
 Algorithm~\ref{alg:unsigncrypt} accepted, so either the header
 $\mathsf{hdr} = (\mathcal{P}_e\Vert\mathcal{P}_s\Vert W^{\circ}\Vert\mathsf{tag}\Vert\{\mathbf{d}_j\})$
-equals the one the honest $\DO$ signed, or $\Adv$ produced an $\ABS$ forgery, an event
+equals the one the honest $\DO$ signed, or $\Adv$ produced a forgery against $\ABS$, an event
 bounded by $\mathsf{Adv}^{\ABS}_{\Chal}(\lambda)$. Assume the former, so the digest list is
 the honest $\{\mathbf{d}_j\}$. Line 4 accepted, so
-$\hSIS(\mathbf{c}_{\mathrm{out}}) = \mathbf{d}_{j^{\ast}} = \hSIS(\mathbf{c}_{j^{\ast}})$.
-If $\mathbf{c}_{\mathrm{out}} \ne \mathbf{c}_{j^{\ast}}$ this is a collision, bounded by
+$\hSIS(\mathsf{ct}_{\mathrm{out}}) = \mathbf{d}_{j^{\ast}} = \hSIS(\mathsf{ct}_{j^{\ast}})$.
+If $\mathsf{ct}_{\mathrm{out}} \ne \mathsf{ct}_{j^{\ast}}$ this is a collision, bounded by
 $\mathsf{Adv}^{\SIS}_{\Chal}(\lambda)$ via Lemma~\ref{lem:digest-cr}. Otherwise
-$\mathbf{c}_{\mathrm{out}} = \mathbf{c}_{j^{\ast}}$, and line 5 has checked
-$S_{j^{\ast}}\subseteq A_d$, so by Theorem~\ref{thm:correctness} the recovered key is
-$K'=K$ except with probability $\negl(n)$, and $\AEAD.\Dec$ under $H_3(K)$ with the correct
+$\mathsf{ct}_{\mathrm{out}} = \mathsf{ct}_{j^{\ast}}$, and line 5 has checked
+$S_{j^{\ast}}\subseteq A_d$, so by Theorem~\ref{thm:correctness} the recovered key is $K'=K$
+except with probability $\negl(\lambda)$, and $\AEAD.\Dec$ under $H_2(K)$ with the correct
 associated data returns $\mathit{msg}^{\star}$ or $\bot$ by INT-CTXT of $\AEAD$. Hence
 $\mathit{msg}\notin\{\mathit{msg}^{\star},\bot\}$ occurs only in the bounded events above.
 \end{proof}
 
 \begin{Theorem}[Verifiability of $\Test$]
 \label{thm:verif-test}
-Model $H_5 : \bt^{\kappa}\to\bt^{\kappa}$ as a random oracle. A cloud that has not obtained
-$\tau$, either by decrypting $\mathsf{ct}_W$ with a satisfying $\KPABE$ key or from the
-$\DO$, causes line 3 of Algorithm~\ref{alg:unsigncrypt} to accept with probability at most
-$q_{H_5}\cdot 2^{-\kappa}$, where $q_{H_5}$ bounds its oracle queries.
+Model $H_4 : \bt^{\kappa}\to\bt^{\kappa}$ as a random oracle. A cloud that has not obtained
+$\tau$, either by decrypting $\mathsf{ct}_W$ with a satisfying $\KPABE$ key or from the $\DO$,
+causes line 3 of Algorithm~\ref{alg:unsigncrypt} to accept with probability at most
+$\mathsf{Adv}^{\ABS}_{\Chal}(\lambda) + q_{H_4}\cdot 2^{-\kappa}$, where $q_{H_4}$ bounds its
+oracle queries.
 \end{Theorem}
 
 \begin{proof}
-$\mathsf{tag} = H_5(\tau)$ is inside the signed header, so by Theorem~\ref{thm:unforgeability}
-the cloud cannot substitute a tag of its own choosing except with probability
-$\mathsf{Adv}^{\ABS}_{\Chal}(\lambda)$. Producing $\tau'$ with $H_5(\tau') = \mathsf{tag}$
-without knowing $\tau$ requires inverting a random oracle on a target it did not choose,
-which succeeds with probability at most $q_{H_5}2^{-\kappa}$ over $q_{H_5}$ queries.
+$\mathsf{tag} = H_4(\tau)$ is inside the signed header, so by
+Theorem~\ref{thm:unforgeability} the cloud cannot substitute a tag of its own choosing except
+with probability $\mathsf{Adv}^{\ABS}_{\Chal}(\lambda)$. Producing $\tau'$ with
+$H_4(\tau') = \mathsf{tag}$ without knowing $\tau$ requires inverting a random oracle on a
+target it did not choose, which succeeds with probability at most $q_{H_4}2^{-\kappa}$ over
+$q_{H_4}$ queries.
 \end{proof}
 
 \begin{Remark}[Scope of verifiability]
@@ -1433,17 +1517,17 @@ $|\Pr[\nu'=\nu]-1/2| \le \mathsf{Adv}^{\ABS\text{-}\mathrm{priv}}_{\Adv}(\lambda
 \end{Lemma}
 
 \begin{proof}
-Every component of $\CT$ other than $\varsigma_{\mathrm{sig}}$ is computed from
+Every component of $\CT$ other than $\mu_{\mathrm{sig}}$ is computed from
 $(\mathit{msg},\mathcal{P}_e,\mathcal{P}_s,W,\mathsf{IC})$ and is independent of $A_s$.
 The claim follows by forwarding the challenge to the $\ABS$ privacy game.
 \end{proof}
 
 The earlier version asserted that data-owner privacy holds information-theoretically because
 $\SamplePre$ outputs a distribution depending only on the target coset. That argument is
-incomplete. The output distribution does not depend on the internal reconstruction vector,
-which is what the argument establishes, but it does depend on the matrix
-$\mathbf{F}_{A_s}$, and hence on $A_s$ itself. Two different satisfying attribute sets give
-two different cosets, so the signature is not distributed identically across them.
+incomplete. The output distribution does not depend on the internal reconstruction vector, which is what
+the argument establishes, but it does depend on the public matrix that the signer's attribute
+set determines, and hence on $A_s$ itself. Two different satisfying attribute sets give two
+different cosets, so the signature is not distributed identically across them.
 Lemma~\ref{lem:signerprivacy} states the guarantee that does hold, and it is computational.
 
 \subsection{Keyword indistinguishability}
@@ -1455,26 +1539,26 @@ generic-name sets $W_0^{\star\circ} = W_1^{\star\circ}$. $\Chal$ runs $\Setup$, 
 to $\Adv$, and answers $\mathcal{O}_{\KTG}(\mathcal{P}_t)$ for every $\mathcal{P}_t$ with
 $\mathcal{P}_t(W_0^{\star\circ}) = \mathcal{P}_t(W_1^{\star\circ}) = \false$, together with
 signing-key and $\DRR$ oracles. $\Adv$ submits
-$(\mathit{msg}^{\star},\mathcal{P}_e^{\star},\mathcal{P}_s^{\star})$; $\Chal$ samples
-$\mu\xleftarrow{\$}\bt$ and signcrypts under $W_{\mu}^{\star}$. $\Adv$ outputs $\mu'$ and
-wins if $\mu'=\mu$.
+$(\mathit{msg}^{\star},\mathcal{P}_e^{\star},\mathcal{P}_s^{\star})$; $\Chal$ samples $\theta\xleftarrow{\$}\bt$ and signcrypts under $W_{\theta}^{\star}$. $\Adv$
+outputs $\theta'$ and wins if $\theta'=\theta$.
 \end{Definition}
 
 \begin{Theorem}[Keyword indistinguishability]
 \label{thm:cka}
-If $\KPABE$ is selectively IND-CPA secure under $\LWE_{n,q,\chi,m}$ and $H_5$ is a random
+If $\KPABE$ is selectively IND-CPA secure under $\LWE_{n,q,\chi,m}$ and $H_4$ is a random
 oracle, then for every PPT $\Adv$,
-$|\Pr[\mu'=\mu]-1/2| \le \mathsf{Adv}^{\KPABE}_{\Chal}(\lambda) + q_{H_5}2^{-\kappa}$.
+$|\Pr[\theta'=\theta]-1/2| \le \mathsf{Adv}^{\KPABE}_{\Chal}(\lambda) + q_{H_4}2^{-\kappa}$.
 \end{Theorem}
 
 \begin{proof}
-The keyword-dependent parts of $\CT$ are $\mathsf{ct}_W$ and $\mathsf{tag} = H_5(\tau)$, plus
+The keyword-dependent parts of $\CT$ are $\mathsf{ct}_W$ and $\mathsf{tag} = H_4(\tau)$, plus
 $W^{\circ}$, which is identical under both challenge sets by hypothesis. Game $\mathsf{G}_1$
 replaces $\tau$ in $\mathsf{ct}_W$ by an independent uniform value; the gap is
 $\mathsf{Adv}^{\KPABE}_{\Chal}(\lambda)$ by the selective IND-CPA property, the reduction
 being able to answer every permitted $\mathcal{O}_{\KTG}$ query through the $\KPABE$ key
 oracle. Game $\mathsf{G}_2$ replaces $\mathsf{tag}$ by a uniform string; the gap is
-$q_{H_5}2^{-\kappa}$ since $\tau$ is now hidden. In $\mathsf{G}_2$ nothing depends on $\mu$.
+$q_{H_4}2^{-\kappa}$ since $\tau$ is now hidden. In $\mathsf{G}_2$ nothing depends on
+$\theta$.
 \end{proof}
 
 The scope of Theorem~\ref{thm:cka} is exactly the indistinguishability of keyword
@@ -1496,7 +1580,7 @@ Confidentiality & $q$-1, DBDH & $\LWE_{n,q,\chi,m}$ & Thm.~\ref{thm:confidential
 Unforgeability & $q$-DHE & $\SIS_{n,q,2m,\beta_s}$ via $\ABS$ & Thm.~\ref{thm:unforgeability} \\
 Signer privacy & information-theoretic & computational, via $\ABS$ & Lem.~\ref{lem:signerprivacy} \\
 Verifiability ($\Transform$) & collision-resistant hash & $\SIS_{n,q,2nh,\beta_h}$ + $\ABS$ & Thm.~\ref{thm:verif-transform} \\
-Verifiability ($\Test$) & pairing identity & random oracle $H_5$ + $\ABS$ & Thm.~\ref{thm:verif-test} \\
+Verifiability ($\Test$) & pairing identity & random oracle $H_4$ + $\ABS$ & Thm.~\ref{thm:verif-test} \\
 Keyword indistinguishability & $q$-2, DLin, DBDH & $\LWE_{n,q,\chi,m}$ & Thm.~\ref{thm:cka} \\
 \bottomrule
 \end{tabular}%
@@ -1518,18 +1602,16 @@ Three constraints fix the parameter set. First, Definition~\ref{def:trapgen} req
 $m \ge (1+\delta)n\log_2 q$; we take $\delta=1$, so $m = 2nh$ with $h = \lceil\log_2 q\rceil$.
 Second, Definition~\ref{def:samplepre} requires
 $\sigma \ge \norm{\widetilde{\mathbf{T}}_{\mathbf{A}_0}}\cdot\omega(\sqrt{\log 2m})$ with
-$\norm{\widetilde{\mathbf{T}}_{\mathbf{A}_0}} = O(\sqrt{nh})$. Third, the correctness
-condition~\eqref{eq:noise} requires $q/4 > B_{\mathrm{dec}}$.
+$\norm{\widetilde{\mathbf{T}}_{\mathbf{A}_0}} = O(\sqrt{nh})$. Third, the correctness condition~\eqref{eq:noise} requires $q/4 > B_{\mathrm{abe}}$.
 
-The three constraints interact, since $m$ depends on $h$ and $B_{\mathrm{dec}}$ depends on
+The three constraints interact, since $m$ depends on $h$ and $B_{\mathrm{abe}}$ depends on
 $m$, so the set is fixed by iterating: (C3) determines the smallest admissible $h$ for a given
 $n$, and the concrete-hardness estimate then determines the smallest $n$ that reaches Level 1
 at that $h$. Taking $\alpha q = 8$, so that $\chi = D_{\Z,8}$ has standard deviation
 $8/\sqrt{2\pi}\approx3.19$, and $n = 1536$, $h = 30$, gives $m = 2nh = 92{,}160$,
 $\norm{\widetilde{\mathbf{T}}_{\mathbf{A}_0}}\approx\sqrt{nh}\approx215$ and hence
 $\sigma = 1024$, which satisfies (C2) since
-$215\cdot\sqrt{\log_2 2m}\approx 898 \le 1024$. Then
-$B_{\mathrm{dec}} = (\sigma\sqrt{2m}+\sqrt{\kappa})\cdot 8\cdot 5 \approx 2^{24.1}$ against
+$215\cdot\sqrt{\log_2 2m}\approx 898 \le 1024$. Then $B_{\mathrm{abe}} = (\sigma\sqrt{2m}+1)\cdot 8\cdot 5 \approx 2^{24.1}$ against
 $q/4 = 2^{28}$, so (C3) holds with $2^{3.9}$ of margin. The chosen set is therefore
 \[
 n = 1536,\quad q = 2^{30},\quad h = 30,\quad m = 92{,}160,\quad \sigma = 1024,\quad
@@ -1537,8 +1619,9 @@ n = 1536,\quad q = 2^{30},\quad h = 30,\quad m = 92{,}160,\quad \sigma = 1024,\q
 \]
 
 Table~\ref{tab:coresvp} reports the concrete hardness of the resulting instances. We use the
-primal-uSVP core-SVP methodology~\cite{alkim2016newhope,albrecht2015concrete}: a BKZ block
-size $b$ is required when $\varsigma_e\sqrt{b} \le \delta(b)^{2b-d-1}q^{(d-n-1)/d}$ with
+primal-uSVP core-SVP methodology~\cite{alkim2016newhope,albrecht2015concrete}: a BKZ block size $b$ is required when
+$\sigma_e\sqrt{b} \le \delta(b)^{2b-d-1}q^{(d-n-1)/d}$, where $\sigma_e = \alpha q/\sqrt{2\pi}$
+is the standard deviation of $\chi$, with
 $\delta(b) = \big((\pi b)^{1/b}b/(2\pi e)\big)^{1/(2(b-1))}$, minimized over the lattice
 dimension $d$; the cost is reported as $2^{0.292b}$ classically and $2^{0.265b}$ quantumly.
 For the SIS instances the condition is $\delta(b)^{d}q^{n/d} \le \beta$.
@@ -1552,7 +1635,8 @@ lattice-estimator run. The current estimator should be run before a final parame
 fixed. The two SIS instances are not reached below block size $1400$, so the entries are lower
 bounds; neither is the binding constraint.}
 \label{tab:coresvp}
-\begin{tabularx}{\textwidth}{lllrrr}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllrrr}
 \toprule
 Instance & Used for & Norm bound $\beta$ & Block size $b$ & Classical & Quantum \\
 \midrule
@@ -1560,7 +1644,8 @@ $\LWE_{n,q,\chi,m}$ & Thms.~\ref{thm:confidentiality},~\ref{thm:cka} & --- & 563
 $\SIS_{n,q,2m,\beta_s}$ & Thm.~\ref{thm:unforgeability} & $2\sigma\sqrt{2m} = 2^{19.7}$ & $>1400$ & $>2^{409}$ & $>2^{371}$ \\
 $\SIS_{n,q,2nh,\beta_h}$ & Lem.~\ref{lem:digest-cr}, Thm.~\ref{thm:verif-transform} & $2\sqrt{2nh} = 2^{9.2}$ & $>1400$ & $>2^{409}$ & $>2^{371}$ \\
 \bottomrule
-\end{tabularx}
+\end{tabular}%
+}
 \end{table}
 
 The LWE instance is the binding constraint at $2^{164}$ classical and $2^{149}$ quantum
@@ -1577,37 +1662,40 @@ consideration.
 
 \begin{table}[htbp]
 \centering
-\caption{Computation cost. $V$ denotes one $\Zq^{n\times m}$ matrix-vector product, $M$ and
-$A$ one multiplication and one addition in $\Zq$, $\mathsf{SP}$ one $\SamplePre$ over a
-width-$2m$ matrix, $\mathsf{EB}$ one $\ExtBasis$ call, and $\mathsf{HD}$ one $\hSIS$
-evaluation over a $\Zq^{2m}$ vector. $P$ and $E_G$ denote a pairing and a group
-exponentiation. $\ell_e$ is the number of DNF clauses, $\varsigma$ the keyword-set size.}
+\caption{Computation cost. $\mathsf{SP}$ denotes one $\SamplePre$ over a width-$2m$ matrix, $\mathsf{EB}$ one
+$\ExtBasis$ call, and $\mathsf{HD}$ one $\hSIS$ evaluation over a clause ciphertext. $P$ and $E_G$ denote a pairing and a group exponentiation. $\ell_e$ is the number of DNF clauses, $\varsigma$ the keyword-set size and $\ell_t$ the number
+of leaves of the keyword policy $\mathcal{P}_t$. Note that ABDSRS's $\ell$ counts monotone
+span program \emph{rows}, not DNF clauses; the two coincide only for policies whose DNF and MSP
+representations are the same size, so the rows below are aligned by role, not by a common
+policy measure.}
 \label{tab:comp-cost}
 \resizebox{\linewidth}{!}{%
 \begin{tabular}{lll}
 \toprule
 Operation & ABDSRS~\cite{bera2023designing} (Table 3) & PQ-ABDSRS \\
 \midrule
-$\Setup$ & $O(1)$ $E_G$ & $1\,\TrapGen + (|U|+|U^{\circ}|+2)$ uniform matrix draws \\
-$\KeyGen$ (decryption) & $O(|A_d|)\,E_G$ & $1\,\mathsf{EB} + 1\,\mathsf{SP}$ \\
+$\Setup$ & $O(1)$ $E_G$ & $1\ \CPABE.\Setup + 1\ \KPABE.\Setup + 1\ \ABS.\Setup + 1$ matrix draw \\
+$\KeyGen$ (decryption) & $O(|A_d|)\,E_G$ & $1\ \CPABE.\KeyGen$ ($1\,\mathsf{EB} + \kappa\,\mathsf{SP}$ under Rem.~\ref{rem:dimmodel}) \\
 $\KeyGen$ (signing) & $O(|A_s|)\,E_G$ & $1\ \ABS.\KeyGen$~\cite{ek2018abs} \\
-Signcryption, offline & $O(\ell_e+\varsigma)\,E_G$ & $(\ell_e\cdot 2m + \kappa)$ noise samples, $1$ secret draw \\
-Signcryption, online & $O(\ell_e+\varsigma)$ group mult. $+\,2H$ & $\ell_e\,V + \ell_e\,\mathsf{HD} + 1\ \KPABE.\Enc + 1\ \ABS.\Sign + 1\ \AEAD.\Enc$ \\
+Signcryption, offline & $O(\ell_e+\varsigma)\,E_G$ & $\ell_e+1$ randomness draws, two uniform strings \\
+Signcryption, online & $O(\ell_e+\varsigma)$ group mult. $+\,2H$ & $\ell_e\ \CPABE.\Enc + \ell_e\,\mathsf{HD} + 1\ \KPABE.\Enc + 1\ \ABS.\Sign + 1\ \AEAD.\Enc$ \\
 Keyword trapdoor & $\ell_t\,E_G$ & $1\ \KPABE.\KeyGen$ \\
 $\DRR$ generation & $O(\ell_t+|A_d|)\,E_G$ & $O(\ell_e|U|)$ set comparisons, no lattice operation \\
-$\Test$ & $14\,P$ (fixed) & $1\ \KPABE.\Dec + 1\ H_5$ \\
+$\Test$ & $14\,P$ (fixed) & $1\ \KPABE.\Dec + 1\ H_4$ \\
 $\Transform$ & $(2\ell_e+7)\,P$ & $1$ index selection, $O(1)$ \\
-Verification at $\DU$ & $2$ pairings $+\,2H$ & $1\ \ABS.\Verify + 1\ \mathsf{HD} + 1\ H_5$ \\
-Decryption at $\DU$ & $1$ KDF & $1$ inner product in $\Z^{2m}$, $\kappa$ roundings, $1\ \AEAD.\Dec$ \\
+Verification at $\DU$ & $2$ pairings $+\,2H$ & $1\ \ABS.\Verify + 1\,\mathsf{HD} + 1\ H_4$ \\
+Decryption at $\DU$ & $1$ KDF & $1\ \CPABE.\Dec + 1\ \AEAD.\Dec$ \\
 \bottomrule
 \end{tabular}%
 }
 \end{table}
 
-Two observations follow from Table~\ref{tab:comp-cost}. First, $\Transform$ is cheaper than in
-ABDSRS in the number of operations, because in the DNF setting the cloud selects a clause
+Two observations follow from Table~\ref{tab:comp-cost}. First, $\Transform$ is cheaper than
+in ABDSRS in the number of operations, because in the DNF setting the cloud selects a clause
 rather than recombining shares; the corresponding cost reappears at signcryption time, where
-one ciphertext per clause must be produced. Second, ABDSRS's $\Test$ is a fixed $14$ pairings
+one full $\CPABE$ ciphertext per clause must be produced, and at key generation, where the
+$\kappa$-column key of Remark~\ref{rem:dimmodel} costs $\kappa$ preimage samplings rather than
+one. Second, ABDSRS's $\Test$ is a fixed $14$ pairings
 independent of policy size, whereas PQ-ABDSRS's $\Test$ is one KP-ABE decryption whose cost
 grows with the keyword policy. Replacing an algebraic identity that collapses many terms into
 a constant-size check by an explicit decrypt-and-compare is what causes this, and it is not
@@ -1618,10 +1706,14 @@ recovered by any parameter choice.
 
 Table~\ref{tab:concrete} reports every object in full, at the parameter set of
 Section~\ref{subsec:params}, against ABDSRS's reported figures (Fig.~4
-of~\cite{bera2023designing}) at the four matching parameter points. Unit sizes are: one
+of~\cite{bera2023designing}) at four parameter points chosen to match on $|U|$. The policy
+measures are not the same quantity: $\ell_e$ counts DNF clauses here and $\ell$ counts MSP
+rows in~\cite{bera2023designing}, and a formula with $\ell$ MSP rows can have many more than
+$\ell$ DNF clauses. The comparison is therefore indicative of scale, not a like-for-like
+serialization of one policy. Unit sizes are: one
 $\Zq$ element $30$ bits; a vector in $\Zq^{n}$ $5{,}760$ B; in $\Zq^{m}$ $345{,}600$ B; in
-$\Zq^{2m}$ $691{,}200$ B; a matrix in $\Zq^{n\times m}$ $530.84$ MB; a discrete Gaussian
-vector in $\Z^{2m}$ with $\sigma=1024$, coded at $14$ bits per coordinate, $322{,}560$ B.
+$\Zq^{2m}$ $691{,}200$ B; a matrix in $\Zq^{n\times m}$ $530.84$ MB; a discrete Gaussian vector in $\Z^{2m}$ with $\sigma=1024$, coded at $14$ bits per
+coordinate, $322{,}560$ B, so a Gaussian matrix in $\Z^{2m\times\kappa}$ is $82.58$ MB.
 Plaintext bytes are excluded from all ciphertext figures, matching the convention of
 Table 4 of~\cite{bera2023designing}.
 
@@ -1645,21 +1737,21 @@ Keywords $\varsigma$ & 4 & 6 & 8 & 10 \\
 \multicolumn{5}{l}{\emph{Public parameters}}\\
 ABDSRS & 2{,}176 B & 2{,}176 B & 2{,}176 B & 2{,}176 B \\
 PQ-ABDSRS, expanded & 54.68 GB & 107.76 GB & 160.85 GB & 213.93 GB \\
-PQ-ABDSRS, seeded (transmitted) & 9.1 KB & 12.3 KB & 15.5 KB & 18.7 KB \\
+PQ-ABDSRS, seeded (transmitted) & 3.3 KB & 6.5 KB & 9.7 KB & 12.9 KB \\
 Ratio, expanded & $2.5\times10^{7}$ & $5.0\times10^{7}$ & $7.4\times10^{7}$ & $9.8\times10^{7}$ \\
 \midrule
 \multicolumn{5}{l}{\emph{Decryption key}}\\
 ABDSRS & 1{,}536 B & 2{,}816 B & 4{,}096 B & 5{,}376 B \\
-PQ-ABDSRS & \multicolumn{4}{c}{322.6 KB (one vector in $\Z^{2m}$, independent of $|A_d|$)} \\
-Ratio & $210\times$ & $115\times$ & $79\times$ & $60\times$ \\
+PQ-ABDSRS & \multicolumn{4}{c}{82.58 MB (a matrix in $\Z^{2m\times\kappa}$, independent of $|A_d|$)} \\
+Ratio & $53{,}760\times$ & $29{,}324\times$ & $20{,}160\times$ & $15{,}360\times$ \\
 \midrule
 \multicolumn{5}{l}{\emph{Ciphertext, plaintext excluded}}\\
 ABDSRS & 7{,}579 B & 11{,}971 B & 16{,}373 B & 20{,}775 B \\
-PQ-ABDSRS & 5.54 MB & 9.71 MB & 13.89 MB & 18.07 MB \\
-Ratio & $731\times$ & $811\times$ & $848\times$ & $870\times$ \\
+PQ-ABDSRS & 21.44 MB & 42.21 MB & 62.98 MB & 83.75 MB \\
+Ratio & $2{,}829\times$ & $3{,}526\times$ & $3{,}846\times$ & $4{,}031\times$ \\
 \midrule
 \multicolumn{5}{l}{\emph{Other objects (PQ-ABDSRS)}}\\
-Keyword trapdoor & 645.1 KB & 967.7 KB & 1.29 MB & 1.61 MB \\
+Keyword trapdoor & \multicolumn{4}{c}{322.6 KB (constant; short keys, Section~\ref{subsec:kpabe})} \\
 Transformed ciphertext & 1.04 MB & 1.07 MB & 1.10 MB & 1.13 MB \\
 \bottomrule
 \end{tabular}%
@@ -1677,13 +1769,13 @@ larger, and the totals are therefore lower bounds.}
 \toprule
 Component & ip-1 & ip-2 & ip-3 & ip-4 \\
 \midrule
-CP-ABE clause ciphertexts $\{\mathbf{c}_j\}$, $\mathbf{c}_u$ & 3.456 MB & 6.913 MB & 10.369 MB & 13.825 MB \\
-Keyword ciphertext $\mathsf{ct}_W$ & 1.728 MB & 2.420 MB & 3.111 MB & 3.802 MB \\
-Signature $\varsigma_{\mathrm{sig}}$ & 322.6 KB & 322.6 KB & 322.6 KB & 322.6 KB \\
+$\CPABE$ clause ciphertexts $\{\mathsf{ct}_j\}$ & 3.46 MB & 6.92 MB & 10.38 MB & 13.84 MB \\
+$\KPABE$ keyword ciphertext $\mathsf{ct}_W$ & 17.63 MB & 34.91 MB & 52.19 MB & 69.47 MB \\
+Signature $\mu_{\mathrm{sig}}$ & 322.6 KB & 322.6 KB & 322.6 KB & 322.6 KB \\
 Digests $\{\mathbf{d}_j\}$ & 28.8 KB & 57.6 KB & 86.4 KB & 115.2 KB \\
 Policies, $W^{\circ}$, $\mathsf{tag}$, nonce, AEAD tag & 224 B & 356 B & 488 B & 620 B \\
 \midrule
-\textbf{Total} & \textbf{5.54 MB} & \textbf{9.71 MB} & \textbf{13.89 MB} & \textbf{18.07 MB} \\
+\textbf{Total} & \textbf{21.44 MB} & \textbf{42.21 MB} & \textbf{62.98 MB} & \textbf{83.75 MB} \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -1702,36 +1794,43 @@ transmitted when the public matrices are derived from a seed
 \centering
 \includegraphics[width=0.9\linewidth]{Figures/size-ciphertext.png}
 \caption{Complete serialized ciphertext of PQ-ABDSRS by component, against the ABDSRS total,
-on a logarithmic axis. Every component listed in Algorithm~\ref{alg:onsigncrypt} is
-included. The PQ-ABDSRS ciphertext is between $731$ and $870$ times larger than ABDSRS's
-across the four parameter points.}
+on a logarithmic axis. Every component listed in Algorithm~\ref{alg:onsigncrypt} is included. The PQ-ABDSRS
+ciphertext is between $2{,}829$ and $4{,}031$ times larger than ABDSRS's across the four
+parameter points, and the keyword layer is the dominant component throughout.}
 \label{fig:size-ciphertext}
 \end{figure}
 
 \subsection{Discussion of the size gap}
 
-The figures above are substantially worse than those reported in the earlier version of this
-work, for five reasons that we set out plainly. The dimension was corrected upward from
+The figures above are substantially worse than those reported in earlier versions of this
+work, for seven reasons that we set out plainly. The dimension was corrected upward from
 $n=512$ to $n=1536$, because the smaller set provides roughly $2^{41}$ rather than $2^{164}$
 classical core-SVP security. The matrix width was corrected from $m\approx6{,}900$ to
 $m = 2nh$, since the former did not satisfy the stated bound. The modulus was raised from
 $2^{27}$ to $2^{30}$, because the correctness condition~\eqref{eq:noise} was never evaluated
 in the earlier version and does not hold at $2^{27}$ for these dimensions. Key vectors were
-corrected from width $m$ to width $2m$, which is the width of the matrix they invert. Most
-importantly, the ciphertext figures of the earlier version counted only a few scalars and one
-commitment, omitting the CP-ABE clause vectors, the keyword ciphertext, the signature and the
-policy descriptions. Once every component is counted, the PQ-ABDSRS ciphertext is several
-hundred times larger than ABDSRS's, not smaller. The earlier claim that PQ ciphertexts are
-smaller than ABDSRS's was an artefact of those omissions and is withdrawn.
+corrected from width $m$ to width $2m$, which is the width of the matrix they invert. The decryption key became a matrix in $\Z^{2m\times\kappa}$ rather than a vector in
+$\Z^{2m}$, because encapsulating $\kappa$ payload bits against a single target leaks all but
+one of them (Remark~\ref{rem:dimmodel}). The keyword ciphertext was corrected to scale with
+$|U^{\circ}|$ rather than with the number of keywords, which is how encryption to an attribute
+vector works in the LWE key-policy ABE we instantiate (Section~\ref{subsec:kpabe}); this alone
+multiplies the ciphertext by roughly four. Most importantly, the ciphertext figures of the
+earliest version counted only a few scalars and one commitment, omitting the clause
+ciphertexts, the keyword ciphertext, the signature and the policy descriptions. Once every
+component is counted, the PQ-ABDSRS ciphertext is several thousand times larger than
+ABDSRS's, not smaller. The earlier claim that PQ ciphertexts are smaller than ABDSRS's was an
+artifact of those omissions and is withdrawn.
 
 \subsection{Limitations}
 \label{subsec:limits}
 
 The public parameters are the decisive obstacle. At $|U|=100$ they occupy more than $100$ GB
 expanded, which no realistic deployment will hold in working memory, and the seeded
-representation of Remark~\ref{rem:seeds} reduces transmission but not computation. This is
-the well-known cost of unstructured LWE, and it is the reason the practical
-lattice-cryptography literature works over structured lattices.
+representation of Remark~\ref{rem:seeds} reduces transmission but not computation. This is the well-known cost of unstructured LWE, and it is the reason the practical
+lattice-cryptography literature works over structured lattices. The keyword layer is the
+second obstacle: because the LWE key-policy ABE encrypts to an attribute vector over the whole
+keyword-name universe, $\mathsf{ct}_W$ alone accounts for more than $80\%$ of the ciphertext
+at every parameter point, and it does not shrink when few keywords are set.
 
 Beyond size, four limitations follow from Section~\ref{subsec:scope}: the policy class is
 restricted to DNF, with a blow-up for formulas whose DNF form is large; confidentiality is
@@ -1774,15 +1873,15 @@ authentication and anonymity from a lattice attribute-based signature, each used
 interface specified in Section~\ref{sec:blocks}. For non-interactive verifiability we showed
 that an additively homomorphic SIS commitment does not authenticate an outsourced
 computation, and we replaced it with a SIS-based binding digest bound into the data owner's
-signature, together with a random-oracle preimage check on the search predicate. We proved
-correctness with an explicit noise bound, and IND-CPA confidentiality, EUF-CMA
-unforgeability, verifiability, signer privacy and keyword indistinguishability in the
-classical random oracle model, recording separately in Table~\ref{tab:inherited} which
-guarantees are inherited from cited building blocks.
+signature, together with a random-oracle preimage check on the search predicate. We isolated the decryption-error condition the composition requires, used it to fix the
+modulus, and proved IND-CPA confidentiality, EUF-CMA unforgeability, verifiability, signer
+privacy and keyword indistinguishability in the classical random oracle model, recording
+separately in Table~\ref{tab:inherited} which guarantees are inherited from cited building
+blocks.
 
 The concrete cost is the main finding. At a parameter set giving $2^{164}$ classical and
-$2^{149}$ quantum core-SVP security, the public parameters exceed ABDSRS's by more than seven
-orders of magnitude and the complete ciphertext by a factor of $731$ to $870$. Unstructured
+$2^{149}$ quantum core-SVP security, the public parameters exceed ABDSRS's by more than seven orders of magnitude and the
+complete ciphertext by a factor of roughly $2{,}800$ to $4{,}000$. Unstructured
 LWE therefore
 does not yield a deployable scheme at this functionality level, and the value of the
 construction is that it establishes what a faithful migration requires and where the cost
@@ -1792,6 +1891,8 @@ structured-lattice re-instantiation with re-derived proofs
 transform (Remark~\ref{rem:cca}), a treatment in the quantum random oracle model, verifiable
 handling of negative search results (Remark~\ref{rem:verifscope}), attribute revocation, and
 a reference implementation.
+
+\vspace{6pt}
 %=================================================================
 % "software" below refers to the analytic reproduction code accompanying this paper,
 % not to an implementation of the scheme. Remove it if that code is not published.
@@ -1805,12 +1906,15 @@ a reference implementation.
 % If the reproduction repository is NOT published, replace the text below with:
 %   Data sharing is not applicable to this article as no new data were created or
 %   analyzed in this study.
-\dataavailability{No new data were created or analyzed in this study. The code that regenerates every parameter, table and figure reported in this article, together with the test suite that checks the reported numbers against it, is openly available at \hl{<REPOSITORY URL>}.}
+\dataavailability{No new data were created or analyzed in this study. The code that regenerates every parameter, table and figure reported in this article, together with the test suite that checks the reported numbers against them, is openly available at \url{https://github.com/keshavsinha/pq-abdsrs} (accessed on 16 September 2026).}
 
 \conflictsofinterest{The authors declare no conflicts of interest.}
 
+\reftitle{References}
+
 %=================================================================
 \begin{thebibliography}{999}
+\sloppy
 
 \bibitem{bera2023designing}
 Bera, S.; Prasad, S.; Rao, Y.S.; Das, A.K.; Park, Y. Designing attribute-based verifiable data storage and retrieval scheme in cloud computing environment. \textit{J. Inf. Secur. Appl.} \textbf{2023}, \textit{75}, 103482. https://doi.org/10.1016/j.jisa.2023.103482.

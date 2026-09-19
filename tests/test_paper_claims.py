@@ -96,23 +96,25 @@ def test_public_parameter_gap_exceeds_six_orders():
         assert row["public_params_ratio"] > 1e7
 
 
-@pytest.mark.parametrize("index,expected_kb", [(0, 9.1), (1, 12.3), (2, 15.5), (3, 18.7)])
+@pytest.mark.parametrize("index,expected_kb", [(0, 3.33), (1, 6.53), (2, 9.73), (3, 12.93)])
 def test_seeded_public_parameters(index, expected_kb):
     assert approx(rows[index]["public_params_seeded"] / KB, expected_kb, tol=0.02)
 
 
-def test_decryption_key_is_constant_and_322_6_kb():
+def test_decryption_key_is_a_matrix_not_a_vector():
+    """A1: a single preimage vector leaks K_i XOR K_j. The key is 2m x kappa."""
     sizes = {row["decryption_key"] for row in rows}
     assert len(sizes) == 1
-    assert approx(rows[0]["decryption_key"] / KB, 322.6)
+    assert approx(rows[0]["decryption_key"] / MB, 82.58)
+    assert rows[0]["decryption_key"] == model.vec_gaussian(2 * ps.m) * ps.kappa
 
 
-@pytest.mark.parametrize("index,expected_mb", [(0, 5.54), (1, 9.71), (2, 13.89), (3, 18.07)])
+@pytest.mark.parametrize("index,expected_mb", [(0, 21.44), (1, 42.21), (2, 62.98), (3, 83.75)])
 def test_ciphertext_totals(index, expected_mb):
     assert approx(rows[index]["ciphertext"] / MB, expected_mb)
 
 
-@pytest.mark.parametrize("index,expected_ratio", [(0, 731), (1, 811), (2, 848), (3, 870)])
+@pytest.mark.parametrize("index,expected_ratio", [(0, 2829), (1, 3526), (2, 3846), (3, 4031)])
 def test_ciphertext_ratio_against_abdsrs(index, expected_ratio):
     assert approx(rows[index]["ciphertext_ratio"], expected_ratio, tol=0.02)
 
@@ -120,7 +122,7 @@ def test_ciphertext_ratio_against_abdsrs(index, expected_ratio):
 def test_pq_ciphertext_is_larger_not_smaller():
     """The pre-revision draft claimed the opposite. It was an artefact of omissions."""
     for row in rows:
-        assert row["ciphertext_ratio"] > 500
+        assert row["ciphertext_ratio"] > 2000
 
 
 # ------------------------------------------------------------------- Table 8
@@ -136,12 +138,12 @@ def test_every_ciphertext_component_is_counted():
     assert set(rows[0]["breakdown"]) == expected
 
 
-@pytest.mark.parametrize("index,expected_mb", [(0, 3.456), (1, 6.913), (2, 10.369), (3, 13.825)])
+@pytest.mark.parametrize("index,expected_mb", [(0, 3.461), (1, 6.922), (2, 10.382), (3, 13.843)])
 def test_cpabe_component(index, expected_mb):
     assert approx(rows[index]["breakdown"]["cpabe"] / MB, expected_mb)
 
 
-@pytest.mark.parametrize("index,expected_mb", [(0, 1.728), (1, 2.420), (2, 3.111), (3, 3.802)])
+@pytest.mark.parametrize("index,expected_mb", [(0, 17.63), (1, 34.91), (2, 52.19), (3, 69.47)])
 def test_keyword_component(index, expected_mb):
     assert approx(rows[index]["breakdown"]["keyword"] / MB, expected_mb)
 
@@ -183,3 +185,36 @@ def test_noise_bound_uses_the_gaussian_tail_not_cauchy_schwarz():
     assert 30 < cauchy_schwarz / ps.noise_bound() < 40
     assert math.log2(cauchy_schwarz) > ps.log_q - 2   # would violate C3
     assert math.log2(ps.noise_bound()) < ps.log_q - 2  # the correct bound does not
+
+
+# ------------------------------------------- regressions from the A1-A3 audit
+
+def test_keyword_ciphertext_scales_with_universe_not_keyword_count():
+    """A3: the LWE KP-ABE ciphertext carries one component per attribute POSITION.
+
+    An earlier draft modelled it as (|W| + 1) components, which would have made
+    it independent of |U^circ|. BGG+14's short-ciphertext variant needs
+    multilinear maps and is not available under LWE.
+    """
+    m0 = SizeModel(ps)
+    a = m0.keyword_ciphertext(50)
+    b = m0.keyword_ciphertext(200)
+    assert b > 3 * a
+    # and the reported figure must use the universe, not the keyword count
+    for row, pt in zip(rows, POINTS):
+        assert row["breakdown"]["keyword"] == m0.keyword_ciphertext(pt.universe)
+
+
+def test_keyword_trapdoor_is_constant():
+    """A3: BGG+14 has short secret keys; the trapdoor does not grow with the policy."""
+    assert len({row["keyword_trapdoor"] for row in rows}) == 1
+    assert approx(rows[0]["keyword_trapdoor"] / KB, 322.6)
+
+
+def test_keyword_ciphertext_dominates_the_total():
+    """The consequence of A3: the keyword layer, not the access-control layer,
+    is now the largest ciphertext component at every parameter point."""
+    for row in rows:
+        b = row["breakdown"]
+        assert b["keyword"] == max(b.values())
+        assert b["keyword"] > b["cpabe"]

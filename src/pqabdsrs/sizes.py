@@ -93,36 +93,65 @@ class SizeModel:
 
     def public_params_expanded(self, universe: int) -> float:
         return (self.n_public_matrices(universe) * self.public_matrix()
-                + self.vec_zq(self.ps.n)                 # u
-                + self.vec_zq(self.ps.kappa))            # misc
+                + self.matrix_zq(self.ps.n, self.ps.kappa)   # U in Z_q^{n x kappa}
+                + self.vec_zq(self.ps.kappa))                # misc
 
     def public_params_seeded(self, universe: int) -> float:
-        """Remark 2: transmitted size only. Working memory is unchanged."""
-        return self.n_public_matrices(universe) * SEED_BYTES + self.vec_zq(self.ps.n)
+        """Remark 2: transmitted size only. Working memory is unchanged.
+
+        One 32-byte seed per derivable matrix. U is a uniform public matrix and
+        is seed-derivable too, so the count is n_public_matrices + 1.
+        """
+        return (self.n_public_matrices(universe) + 1) * SEED_BYTES
 
     def decryption_key(self) -> float:
-        """One Gaussian vector in Z^{2m}; independent of |A_d|."""
-        return self.vec_gaussian(2 * self.ps.m)
+        """Pi_CP key for a kappa-bit payload: a Gaussian matrix in Z^{2m x kappa}.
+
+        A single Gaussian VECTOR is not sufficient. With one target u in Z_q^n and
+        one preimage e_A, every coordinate of the encapsulation is masked by the
+        same inner product <u, s>, so differences of ciphertext coordinates reveal
+        K_i XOR K_j for every i, j. The payload must be encapsulated against
+        kappa independent targets U in Z_q^{n x kappa}, which makes the key a
+        matrix of the same width. See A1 in the audit.
+        """
+        return self.vec_gaussian(2 * self.ps.m) * self.ps.kappa
 
     def signature(self) -> float:
         """GPV lower bound on the ABS signature size."""
         return self.vec_gaussian(2 * self.ps.m)
 
     def cpabe_component(self, clauses: int) -> float:
-        """{c_j} in Z_q^{2m} per clause, plus c_u in Z_q^kappa."""
-        return clauses * self.vec_zq(2 * self.ps.m) + self.vec_zq(self.ps.kappa)
+        """One Pi_CP ciphertext per DNF clause.
+
+        Each clause ciphertext independently encapsulates K, so each carries its
+        own kappa encapsulation elements; they are not shared across clauses.
+        Size model per clause: one vector in Z_q^{2m} plus kappa elements of Z_q.
+        """
+        return clauses * (self.vec_zq(2 * self.ps.m) + self.vec_zq(self.ps.kappa))
 
     def digests(self, clauses: int) -> float:
         """{d_j} in Z_q^n, one per clause."""
         return clauses * self.vec_zq(self.ps.n)
 
-    def keyword_ciphertext(self, keywords: int) -> float:
-        """KP-ABE ciphertext: (varsigma + 1) vectors in Z_q^m plus the payload."""
-        return (keywords + 1) * self.vec_zq(self.ps.m) + self.vec_zq(self.ps.kappa)
+    def keyword_ciphertext(self, universe: int) -> float:
+        """KP-ABE ciphertext: one component per attribute POSITION, not per keyword.
 
-    def keyword_trapdoor(self, keywords: int) -> float:
-        """KP-ABE key: one short vector in Z^m per formula leaf."""
-        return keywords * self.vec_gaussian(self.ps.m)
+        In the LWE key-policy ABE of GVW13/BGG+14 the ciphertext encrypts to an
+        attribute VECTOR over the whole universe, so it carries |U^circ| + 1
+        components in Z_q^m regardless of how many keywords are actually set.
+        The short-ciphertext variant of BGG+14 uses multilinear maps, not LWE,
+        and is not available here. See A3 in the audit.
+        """
+        return (universe + 1) * self.vec_zq(self.ps.m) + self.vec_zq(self.ps.kappa)
+
+    def keyword_trapdoor(self) -> float:
+        """KP-ABE key: one short vector in Z^{2m}.
+
+        BGG+14 has SHORT SECRET KEYS: the key size depends on the depth of the
+        policy circuit, not on the number of leaves. It does not grow with the
+        keyword-policy size.
+        """
+        return self.vec_gaussian(2 * self.ps.m)
 
     def headers(self, clauses: int, keywords: int) -> float:
         """Policy descriptions, generic names, tag, nonce, AEAD tag."""
@@ -135,7 +164,7 @@ class SizeModel:
         """Table 8."""
         return {
             "cpabe": self.cpabe_component(pt.clauses),
-            "keyword": self.keyword_ciphertext(pt.keywords),
+            "keyword": self.keyword_ciphertext(pt.universe),
             "signature": self.signature(),
             "digests": self.digests(pt.clauses),
             "headers": self.headers(pt.clauses, pt.keywords),
@@ -147,8 +176,8 @@ class SizeModel:
     def transformed_ciphertext(self, pt: ParameterPoint) -> float:
         """CT_out carries c_out, c_u, tau', the full digest list, policies and the
         signature, because signature verification at the DU needs all of them."""
-        return (self.vec_zq(2 * self.ps.m)
-                + self.vec_zq(self.ps.kappa)
+        return (self.vec_zq(2 * self.ps.m) + self.vec_zq(self.ps.kappa)
+                + TAG_BYTES
                 + self.signature()
                 + self.digests(pt.clauses)
                 + self.headers(pt.clauses, pt.keywords))
@@ -169,7 +198,7 @@ class SizeModel:
             decryption_key_ratio=dk / ABDSRS_DECRYPTION_KEY[index],
             ciphertext=ct,
             ciphertext_ratio=ct / ABDSRS_CIPHERTEXT[index],
-            keyword_trapdoor=self.keyword_trapdoor(pt.keywords),
+            keyword_trapdoor=self.keyword_trapdoor(),
             transformed_ciphertext=self.transformed_ciphertext(pt),
             breakdown=self.ciphertext_breakdown(pt),
         )

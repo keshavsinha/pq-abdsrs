@@ -13,7 +13,7 @@ Every number in the manuscript that was not taken from a cited paper is computed
 ## Quick start
 
 ```bash
-git clone https://github.com/<user>/pq-abdsrs.git
+git clone https://github.com/keshavsinha/pq-abdsrs.git
 cd pq-abdsrs
 pip install -r requirements.txt
 
